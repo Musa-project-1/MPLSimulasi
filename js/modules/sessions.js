@@ -6,6 +6,7 @@
 import * as Store from '../store.js';
 import { openModal, closeModal, customAlert, renderSessionManager } from '../ui/core.js';
 import { initializeMockDataForSession } from './schedule.js';
+import { isSupabaseConfigured, syncSessionToSupabase, deleteSessionFromSupabase } from './supabase.js';
 
 export function openCreateSessionModal() {
     const nameInput = document.getElementById('input-session-name');
@@ -34,6 +35,11 @@ export function submitCreateSession(e) {
     Store.setActiveSessionName(sessionName);
 
     initializeMockDataForSession(id, scheduleKey);
+
+    if (isSupabaseConfigured()) {
+        syncSessionToSupabase(id).catch(err => console.warn('Supabase initial sync failed:', err));
+    }
+
     enterApp();
 }
 
@@ -72,6 +78,10 @@ export function executeDeleteSession() {
         localStorage.removeItem('mpl_playoffs_' + id);
         localStorage.removeItem('mpl_force_playoff_' + id);
     } catch (_) {}
+
+    if (isSupabaseConfigured()) {
+        deleteSessionFromSupabase(id).catch(err => console.warn('Supabase delete failed:', err));
+    }
 
     closeModal('modal-confirm-delete');
     renderSessionManager();

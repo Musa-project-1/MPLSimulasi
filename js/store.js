@@ -10,7 +10,7 @@ export let globalTeams = [];
 export let globalMatches = [];
 
 const memStorage = new Map();
-const safeStorage = {
+export const safeStorage = {
     getItem: (k) => {
         try {
             if (typeof localStorage !== 'undefined' && localStorage.getItem) {

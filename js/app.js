@@ -13,6 +13,7 @@ import * as Playoffs from './modules/playoffs.js';
 import * as Export from './modules/export.js';
 import * as Admin from './modules/admin.js';
 import * as QuickSim from './modules/quick_sim.js';
+import * as Supabase from './modules/supabase.js';
 import { runSimulation } from './simulation/engine.js';
 
 // --- INITIALIZATION ---
@@ -81,9 +82,11 @@ window.addEventListener('DOMContentLoaded', () => {
     window.saveScheduleDatabase = Admin.saveScheduleDatabase;
     window.resetTemplateToDefault = Admin.resetTemplateToDefault;
 
-    // Settings
+    // Settings & Supabase
     window.openSettingsModal = openSettingsModal;
     window.saveSettings = saveSettings;
+    window.handleTestSupabase = handleTestSupabase;
+    window.handleSyncCurrentSessionToCloud = handleSyncCurrentSessionToCloud;
 
     // App Loaders
     window.initApp = initApp;
@@ -135,7 +138,7 @@ export async function loadTeams() {
     UI.loadTeams(Store.globalTeams);
 }
 
-// --- SETTINGS CONTROLLER ---
+// --- SETTINGS & SUPABASE CONTROLLER ---
 export function openSettingsModal() {
     let settings = Config.DEFAULT_SETTINGS;
     try {
@@ -157,6 +160,25 @@ export function openSettingsModal() {
     if (fat) fat.checked = settings.fatigue !== false;
     if (riv) riv.checked = settings.rivalry !== false;
 
+    // Populate Supabase inputs
+    const sbConfig = Supabase.getSupabaseConfig();
+    const sbUrlInp = document.getElementById('setting-supabase-url');
+    const sbKeyInp = document.getElementById('setting-supabase-key');
+    const sbBadge = document.getElementById('supabase-badge-status');
+
+    if (sbUrlInp) sbUrlInp.value = sbConfig.url;
+    if (sbKeyInp) sbKeyInp.value = sbConfig.key;
+
+    if (sbBadge) {
+        if (Supabase.isSupabaseConfigured()) {
+            sbBadge.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            sbBadge.innerText = "Cloud Active";
+        } else {
+            sbBadge.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-500/10 text-slate-400 border border-[var(--border-color)]";
+            sbBadge.innerText = "Local Mode";
+        }
+    }
+
     UI.openModal('modal-settings');
 }
 
@@ -173,9 +195,74 @@ export function saveSettings() {
         localStorage.setItem('mpl_settings_' + Store.activeSessionId, JSON.stringify(settings));
     } catch (_) {}
 
+    // Save Supabase credentials
+    const sbUrl = document.getElementById('setting-supabase-url')?.value || '';
+    const sbKey = document.getElementById('setting-supabase-key')?.value || '';
+    Supabase.saveSupabaseConfig(sbUrl, sbKey);
+
+    if (Supabase.isSupabaseConfigured() && Store.activeSessionId) {
+        Supabase.syncSessionToSupabase(Store.activeSessionId)
+            .then(() => UI.showToast("Pengaturan dan data berhasil disinkronkan ke Supabase Cloud!", "success"))
+            .catch(err => console.warn('Supabase sync on save failed:', err));
+    }
+
     UI.closeModal('modal-settings');
-    UI.customAlert("Konfigurasi simulasi berhasil disimpan!");
+    UI.showToast("Konfigurasi simulasi berhasil disimpan!", "success");
     loadStandings();
+}
+
+export async function handleTestSupabase() {
+    const url = document.getElementById('setting-supabase-url')?.value || '';
+    const key = document.getElementById('setting-supabase-key')?.value || '';
+    Supabase.saveSupabaseConfig(url, key);
+
+    const statusText = document.getElementById('supabase-status-text');
+    if (statusText) {
+        statusText.classList.remove('hidden');
+        statusText.innerText = "Menghubungi Supabase Cloud...";
+        statusText.className = "text-[11px] text-blue-400 mt-1";
+    }
+
+    const result = await Supabase.testSupabaseConnection();
+
+    if (statusText) {
+        statusText.innerText = result.message;
+        statusText.className = result.success 
+            ? "text-[11px] text-emerald-400 font-bold mt-1" 
+            : "text-[11px] text-rose-400 font-bold mt-1";
+    }
+
+    const sbBadge = document.getElementById('supabase-badge-status');
+    if (sbBadge && result.success) {
+        sbBadge.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        sbBadge.innerText = "Cloud Active";
+    }
+}
+
+export async function handleSyncCurrentSessionToCloud() {
+    if (!Store.activeSessionId) {
+        UI.showToast("Buka atau buat sesi terlebih dahulu.", "warning");
+        return;
+    }
+
+    const url = document.getElementById('setting-supabase-url')?.value || '';
+    const key = document.getElementById('setting-supabase-key')?.value || '';
+    Supabase.saveSupabaseConfig(url, key);
+
+    if (!Supabase.isSupabaseConfigured()) {
+        UI.showToast("Masukkan URL dan Anon Key Supabase terlebih dahulu.", "warning");
+        return;
+    }
+
+    UI.showLoading(true);
+    const success = await Supabase.syncSessionToSupabase(Store.activeSessionId);
+    UI.showLoading(false);
+
+    if (success) {
+        UI.showToast("Sesi aktif berhasil disinkronkan ke Supabase Cloud!", "success");
+    } else {
+        UI.showToast("Gagal sinkronisasi ke Supabase. Periksa kredensial dan tabel schema.", "error");
+    }
 }
 
 // --- PWA & SERVICE WORKER ---

@@ -45,9 +45,57 @@ export function getTeamLogo(tag, customClasses = '') {
     }
     const logoUrl = TEAM_LOGOS[tag];
     if (logoUrl) {
-        return `<img src="${logoUrl}" alt="${tag}" class="object-contain ${customClasses}">`;
+        return `<img src="${logoUrl}" alt="${tag}" onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('span'),{className:'bg-slate-200 text-slate-600 inline-flex items-center justify-center font-bold text-[10px] ${customClasses} border border-slate-300 flex-shrink-0 rounded-lg',innerText:'${tag.substring(0, 3)}'}))" class="object-contain ${customClasses}">`;
     }
     return `<span class="bg-slate-200 text-slate-600 inline-flex items-center justify-center font-bold text-[10px] ${customClasses} border border-slate-300 flex-shrink-0 rounded-lg">${tag.substring(0, 3)}</span>`;
+}
+
+/**
+ * Lightweight Toast Notification (non-intrusive alert replacement)
+ */
+export function showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = "fixed bottom-5 right-5 z-[500] flex flex-col gap-2 pointer-events-none";
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    const borderColors = {
+        info: 'border-blue-500/30 text-blue-400 bg-slate-900/90',
+        success: 'border-emerald-500/30 text-emerald-400 bg-slate-900/90',
+        warning: 'border-amber-500/30 text-amber-400 bg-slate-900/90',
+        error: 'border-rose-500/30 text-rose-400 bg-slate-900/90'
+    };
+
+    const icons = {
+        info: 'ph-info',
+        success: 'ph-check-circle',
+        warning: 'ph-warning',
+        error: 'ph-x-circle'
+    };
+
+    const scheme = borderColors[type] || borderColors.info;
+    const icon = icons[type] || icons.info;
+
+    toast.className = `flex items-center gap-3 px-4 py-3 rounded-2xl border ${scheme} shadow-2xl backdrop-blur-md text-xs font-bold uppercase tracking-wider transform translate-y-4 opacity-0 transition-all duration-300 pointer-events-auto max-w-sm`;
+    toast.innerHTML = `
+        <i class="ph-fill ${icon} text-lg flex-shrink-0"></i>
+        <span class="text-[var(--text-primary)] normal-case font-medium flex-1">${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-4', 'opacity-0');
+    });
+
+    setTimeout(() => {
+        toast.classList.add('translate-y-4', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+    }, 2800);
 }
 
 export function showLoading(show) {

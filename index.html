@@ -268,16 +268,29 @@
             <!-- VIEW: MATCHES (DESAIN BARU ALA ESPORTS) -->
             <section id="view-matches" class="view-section hidden flex flex-col">
                 <!-- Header JADWAL -->
-                <div class="text-center mb-6">
-                    <h2 class="text-4xl font-bold tracking-widest uppercase mb-4 font-oswald text-slate-800">JADWAL</h2>
-                    <div class="flex justify-center gap-6 border-b border-slate-200">
+                <div class="text-center mb-4">
+                    <h2 class="text-4xl font-bold tracking-widest uppercase mb-4 font-oswald text-[var(--text-primary)]">JADWAL</h2>
+                    <div class="flex justify-center gap-6 border-b border-[var(--border-color)]">
                         <button onclick="switchMatchSubTab('regular')" id="btn-match-regular" class="pb-2 border-b-2 border-[#9B111E] text-[#9B111E] font-semibold px-2 uppercase tracking-wide text-sm transition-all">Regular Season</button>
-                        <button onclick="switchMatchSubTab('playoffs')" id="btn-match-playoffs" class="pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-semibold px-2 uppercase tracking-wide text-sm transition-all">Playoffs</button>
+                        <button onclick="switchMatchSubTab('playoffs')" id="btn-match-playoffs" class="pb-2 border-b-2 border-transparent text-slate-400 hover:text-[var(--text-primary)] font-semibold px-2 uppercase tracking-wide text-sm transition-all">Playoffs</button>
                     </div>
                 </div>
 
                 <!-- Regular Season View -->
                 <div id="container-match-regular" class="w-full">
+                    <!-- Quick Simulation Toolbar -->
+                    <div class="flex flex-wrap items-center justify-center gap-2.5 my-4">
+                        <button onclick="simulateCurrentWeekMatches()" class="btn-esports flex items-center gap-2 px-4 py-2 bg-rose-600/10 hover:bg-rose-600/20 text-rose-500 border border-rose-500/20 rounded-xl text-xs font-bold transition shadow-sm">
+                            <i class="ph ph-lightning text-base"></i> Simulasikan Minggu Ini
+                        </button>
+                        <button onclick="simulateAllRemainingMatches()" class="btn-esports flex items-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 rounded-xl text-xs font-bold transition shadow-sm">
+                            <i class="ph ph-fast-forward text-base"></i> Simulasikan Semua Sisa
+                        </button>
+                        <button onclick="resetCurrentWeekMatches()" class="btn-esports flex items-center gap-2 px-3 py-2 bg-slate-500/10 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 border border-[var(--border-color)] rounded-xl text-xs font-medium transition">
+                            <i class="ph ph-arrow-counter-clockwise text-base"></i> Reset Minggu Ini
+                        </button>
+                    </div>
+
                     <!-- Timeline Per Minggu -->
                     <div id="timeline-container" class="relative flex justify-between items-center mb-10 px-4 max-w-4xl mx-auto w-full mt-4">
                         <!-- Injected by JS -->
@@ -395,21 +408,21 @@
 
     <!-- Modal Edit Player -->
     <div id="modal-edit-player" class="fixed inset-0 bg-slate-900/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity backdrop-blur-sm">
-        <div class="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-md shadow-2xl transform scale-95 transition-transform" id="modal-edit-player-content">
+        <div class="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-md shadow-2xl transform scale-95 transition-transform border border-[var(--border-color)]" id="modal-edit-player-content">
             <div class="flex justify-between items-center mb-5">
-                <h3 class="text-xl font-bold font-oswald tracking-wide uppercase">Edit Player</h3>
-                <button onclick="closeModal('modal-edit-player')" class="text-slate-400 hover:text-slate-700"><i class="ph ph-x text-xl"></i></button>
+                <h3 class="text-xl font-bold font-oswald tracking-wide uppercase text-[var(--text-primary)]">Edit Player</h3>
+                <button onclick="closeModal('modal-edit-player')" class="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><i class="ph ph-x text-xl"></i></button>
             </div>
             <form id="form-edit-player" onsubmit="submitEditPlayer(event)">
                 <input type="hidden" id="edit-player-id">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Nick Name</label>
-                        <input type="text" id="edit-player-nick" required class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none focus:border-[var(--mpl-red)] transition" placeholder="Cth: Alberttt">
+                        <label class="block text-sm font-medium text-[var(--text-secondary)] mb-1">Nick Name</label>
+                        <input type="text" id="edit-player-nick" required class="w-full px-4 py-2 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-lg outline-none focus:border-[var(--mpl-red)] transition" placeholder="Cth: Alberttt">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Role</label>
-                        <select id="edit-player-role" class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none focus:border-[var(--mpl-red)] transition bg-white">
+                        <label class="block text-sm font-medium text-[var(--text-secondary)] mb-1">Role</label>
+                        <select id="edit-player-role" class="w-full px-4 py-2 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-lg outline-none focus:border-[var(--mpl-red)] transition">
                             <option value="EXP Laner">EXP Laner</option>
                             <option value="Jungler">Jungler</option>
                             <option value="Mid Laner">Mid Laner</option>
@@ -419,8 +432,8 @@
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" onclick="closeModal('modal-edit-player')" class="px-4 py-2 text-slate-600 font-medium hover:bg-slate-100 rounded-lg">Batal</button>
-                    <button type="submit" class="btn-esports px-4 py-2 bg-slate-900 text-white font-medium rounded-lg">Simpan Player</button>
+                    <button type="button" onclick="closeModal('modal-edit-player')" class="px-4 py-2 text-[var(--text-secondary)] font-medium hover:bg-[var(--bg-secondary)] rounded-lg">Batal</button>
+                    <button type="submit" class="btn-esports px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-lg">Simpan Player</button>
                 </div>
             </form>
         </div>
@@ -428,13 +441,13 @@
 
     <!-- Modal Peringatan/Alert -->
     <div id="modal-alert" class="fixed inset-0 bg-slate-900/80 z-[300] flex items-center justify-center hidden opacity-0 transition-opacity backdrop-blur-sm">
-        <div class="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-xs shadow-2xl transform scale-95 transition-transform text-center" id="modal-alert-content">
+        <div class="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-xs shadow-2xl transform scale-95 transition-transform text-center border border-[var(--border-color)]" id="modal-alert-content">
             <div class="w-16 h-16 rounded-full bg-amber-100/20 text-amber-500 flex items-center justify-center mx-auto mb-4">
                 <i class="ph-fill ph-warning text-3xl"></i>
             </div>
             <h3 class="text-lg font-bold text-[var(--text-primary)] mb-2 font-oswald tracking-wide uppercase">Peringatan</h3>
-            <p id="alert-message" class="text-slate-600 text-sm mb-6"></p>
-            <button onclick="closeModal('modal-alert')" class="btn-esports w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg transition shadow-lg">Mengerti</button>
+            <p id="alert-message" class="text-[var(--text-secondary)] text-sm mb-6"></p>
+            <button onclick="closeModal('modal-alert')" class="btn-esports w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-lg transition shadow-lg">Mengerti</button>
         </div>
     </div>
 
@@ -460,7 +473,7 @@
                 </div>
                 <div class="flex justify-end gap-3">
                     <button type="button" onclick="closeModal('modal-create-session')" class="px-5 py-2.5 text-slate-400 font-medium hover:text-white rounded-lg transition">Batal</button>
-                    <button type="submit" class="btn-esports px-5 py-2.5 bg-emerald-500 text-white font-bold rounded-lg hover:bg-emerald-600 transition flex items-center shadow-lg shadow-emerald-500/20">
+                    <button type="submit" class="btn-esports px-5 py-2.5 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 transition flex items-center shadow-lg shadow-rose-600/20">
                         <i class="ph ph-play-circle mr-2 text-lg"></i> Mulai Musim
                     </button>
                 </div>
@@ -486,26 +499,26 @@
 
     <!-- Modal Edit Team -->
     <div id="modal-edit-team" class="fixed inset-0 bg-slate-900/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity backdrop-blur-sm">
-        <div class="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-md shadow-2xl transform scale-95 transition-transform" id="modal-edit-team-content">
+        <div class="bg-[var(--bg-card)] rounded-2xl p-6 w-full max-w-md shadow-2xl transform scale-95 transition-transform border border-[var(--border-color)]" id="modal-edit-team-content">
             <div class="flex justify-between items-center mb-5">
-                <h3 class="text-xl font-bold font-oswald tracking-wide uppercase">Edit Team</h3>
-                <button onclick="closeModal('modal-edit-team')" class="text-slate-400 hover:text-slate-700"><i class="ph ph-x text-xl"></i></button>
+                <h3 class="text-xl font-bold font-oswald tracking-wide uppercase text-[var(--text-primary)]">Edit Team</h3>
+                <button onclick="closeModal('modal-edit-team')" class="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><i class="ph ph-x text-xl"></i></button>
             </div>
             <form id="form-edit-team" onsubmit="submitEditTeam(event)">
                 <input type="hidden" id="edit-team-id">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Nama Tim</label>
-                        <input type="text" id="edit-team-name" required class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none focus:border-[var(--mpl-red)] transition" placeholder="Cth: ONIC Esports">
+                        <label class="block text-sm font-medium text-[var(--text-secondary)] mb-1">Nama Tim</label>
+                        <input type="text" id="edit-team-name" required class="w-full px-4 py-2 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-lg outline-none focus:border-[var(--mpl-red)] transition" placeholder="Cth: ONIC Esports">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Tag Tim (3-4 Huruf)</label>
-                        <input type="text" id="edit-team-tag" required class="w-full px-4 py-2 border border-slate-300 rounded-lg outline-none focus:border-[var(--mpl-red)] transition" placeholder="Cth: ONIC">
+                        <label class="block text-sm font-medium text-[var(--text-secondary)] mb-1">Tag Tim (3-4 Huruf)</label>
+                        <input type="text" id="edit-team-tag" required class="w-full px-4 py-2 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-lg outline-none focus:border-[var(--mpl-red)] transition" placeholder="Cth: ONIC">
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" onclick="closeModal('modal-edit-team')" class="px-4 py-2 text-slate-600 font-medium hover:bg-slate-100 rounded-lg">Batal</button>
-                    <button type="submit" class="btn-esports px-4 py-2 bg-slate-900 text-white font-medium rounded-lg">Simpan Perubahan</button>
+                    <button type="button" onclick="closeModal('modal-edit-team')" class="px-4 py-2 text-[var(--text-secondary)] font-medium hover:bg-[var(--bg-secondary)] rounded-lg">Batal</button>
+                    <button type="submit" class="btn-esports px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-lg">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -674,40 +687,40 @@
 
     <!-- Modal Match Details (Game-by-Game) -->
     <div id="modal-match-details" class="fixed inset-0 bg-slate-900/80 z-[250] flex items-center justify-center hidden opacity-0 transition-opacity backdrop-blur-sm">
-        <div class="bg-[var(--bg-card)] rounded-3xl p-8 w-full max-w-2xl shadow-2xl transform scale-95 transition-transform" id="modal-match-details-content">
+        <div class="bg-[var(--bg-card)] rounded-3xl p-8 w-full max-w-2xl shadow-2xl transform scale-95 transition-transform border border-[var(--border-color)]" id="modal-match-details-content">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold font-oswald tracking-tight uppercase">Detailed Match Results</h3>
-                <button onclick="closeModal('modal-match-details')" class="text-slate-400 hover:text-slate-700"><i class="ph ph-x text-xl"></i></button>
+                <h3 class="text-2xl font-bold font-oswald tracking-tight uppercase text-[var(--text-primary)]">Detailed Match Results</h3>
+                <button onclick="closeModal('modal-match-details')" class="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><i class="ph ph-x text-xl"></i></button>
             </div>
             
             <div id="match-details-body" class="space-y-6">
                 <!-- Injected via JS -->
             </div>
             
-            <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end gap-3">
-                <button onclick="closeModal('modal-match-details')" class="px-6 py-2 text-slate-600 font-medium hover:bg-slate-100 rounded-lg">Batal</button>
-                <button onclick="saveMatchDetails()" class="btn-esports px-8 py-2 bg-slate-900 text-white font-bold rounded-xl shadow-lg">Simpan Hasil Match</button>
+            <div class="mt-8 pt-6 border-t border-[var(--border-color)] flex justify-end gap-3">
+                <button onclick="closeModal('modal-match-details')" class="px-6 py-2 text-[var(--text-secondary)] font-medium hover:bg-[var(--bg-secondary)] rounded-lg">Batal</button>
+                <button onclick="saveMatchDetails()" class="btn-esports px-8 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg">Simpan Hasil Match</button>
             </div>
         </div>
     </div>
 
     <!-- Modal Team Picker (Visual Selector) -->
     <div id="modal-team-picker" class="fixed inset-0 bg-slate-900/90 z-[300] flex items-center justify-center hidden opacity-0 transition-all backdrop-blur-md">
-        <div class="bg-[var(--bg-card)] rounded-3xl p-8 w-full max-w-xl shadow-2xl transform scale-95 transition-all" id="modal-team-picker-content">
+        <div class="bg-[var(--bg-card)] rounded-3xl p-8 w-full max-w-xl shadow-2xl transform scale-95 transition-all border border-[var(--border-color)]" id="modal-team-picker-content">
             <div class="flex justify-between items-center mb-8">
                 <div>
-                    <h3 class="text-2xl font-bold font-oswald tracking-tight uppercase">Select Team</h3>
+                    <h3 class="text-2xl font-bold font-oswald tracking-tight uppercase text-[var(--text-primary)]">Select Team</h3>
                     <p id="picker-subtitle" class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Pilih tim untuk slot ini</p>
                 </div>
-                <button onclick="closeModal('modal-team-picker')" class="text-slate-400 hover:text-slate-700 bg-slate-100 p-2 rounded-full"><i class="ph ph-x text-xl"></i></button>
+                <button onclick="closeModal('modal-team-picker')" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-secondary)] p-2 rounded-full border border-[var(--border-color)]"><i class="ph ph-x text-xl"></i></button>
             </div>
             
             <div id="team-picker-grid" class="grid grid-cols-3 gap-4">
                 <!-- Injected via JS -->
             </div>
             
-            <div class="mt-8 pt-6 border-t border-slate-100">
-                <button onclick="selectTeamFromPicker('')" class="w-full py-3 bg-slate-100 text-slate-500 font-bold rounded-xl hover:bg-slate-200 transition-all uppercase text-xs tracking-widest">
+            <div class="mt-8 pt-6 border-t border-[var(--border-color)]">
+                <button onclick="selectTeamFromPicker('')" class="w-full py-3 bg-[var(--bg-secondary)] text-[var(--text-secondary)] font-bold rounded-xl hover:bg-[var(--bg-input)] hover:text-[var(--text-primary)] transition-all uppercase text-xs tracking-widest border border-[var(--border-color)]">
                     <i class="ph ph-prohibit mr-2"></i> Kosongkan Slot (TBD)
                 </button>
             </div>
@@ -716,24 +729,24 @@
 
     <!-- Modal Database Admin (Jadwal Editor) -->
     <div id="modal-database-admin" class="fixed inset-0 bg-slate-900/90 z-[300] flex items-center justify-center hidden opacity-0 transition-all backdrop-blur-md">
-        <div class="bg-[var(--bg-card)] rounded-3xl w-full max-w-5xl h-[85vh] shadow-2xl transform scale-95 transition-all flex flex-col overflow-hidden" id="modal-database-admin-content">
+        <div class="bg-[var(--bg-card)] rounded-3xl w-full max-w-5xl h-[85vh] shadow-2xl transform scale-95 transition-all flex flex-col overflow-hidden border border-[var(--border-color)]" id="modal-database-admin-content">
             <!-- Header -->
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <div class="p-6 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-secondary)]">
                 <div class="flex items-center gap-4">
                     <div class="p-3 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-500/20">
                         <i class="ph-fill ph-database text-2xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-2xl font-bold font-oswald tracking-tight uppercase">Database Jadwal Admin</h3>
+                        <h3 class="text-2xl font-bold font-oswald tracking-tight uppercase text-[var(--text-primary)]">Database Jadwal Admin</h3>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Atur jadwal default untuk setiap sesi baru</p>
                     </div>
                 </div>
-                <button onclick="closeModal('modal-database-admin')" class="text-slate-400 hover:text-slate-700 bg-white p-2 rounded-full border border-slate-200 shadow-sm"><i class="ph ph-x text-xl"></i></button>
+                <button onclick="closeModal('modal-database-admin')" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-card)] p-2 rounded-full border border-[var(--border-color)] shadow-sm"><i class="ph ph-x text-xl"></i></button>
             </div>
 
             <div class="flex-1 flex overflow-hidden">
                 <!-- Sidebar Navigation -->
-                <div class="w-64 border-r border-slate-100 bg-slate-50/30 p-4 flex flex-col gap-2 overflow-y-auto">
+                <div class="w-64 border-r border-[var(--border-color)] bg-[var(--bg-secondary)] p-4 flex flex-col gap-2 overflow-y-auto">
                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-2">Pilih Template</label>
                     <button onclick="switchAdminTemplate('standard')" id="admin-nav-standard" class="admin-nav-btn active flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all text-left">
                         <i class="ph ph-calendar text-lg"></i> Standard MPL
@@ -745,26 +758,26 @@
                         <i class="ph ph-lightning text-lg"></i> Blitz Tournament
                     </button>
                     
-                    <div class="mt-auto p-4 bg-amber-50 border border-amber-100 rounded-2xl">
-                        <p class="text-[10px] text-amber-700 leading-relaxed"><strong>INFO:</strong> Perubahan di sini akan berpengaruh pada sesi <strong>BARU</strong> yang Anda buat nanti.</p>
+                    <div class="mt-auto p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+                        <p class="text-[10px] text-amber-500 leading-relaxed"><strong>INFO:</strong> Perubahan di sini akan berpengaruh pada sesi <strong>BARU</strong> yang Anda buat nanti.</p>
                     </div>
                 </div>
 
                 <!-- Main Editor Area -->
                 <div class="flex-1 flex flex-col overflow-hidden">
                     <!-- Tool Bar -->
-                    <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-white">
-                        <div id="admin-template-info" class="text-sm font-bold text-slate-600 uppercase tracking-tight">
+                    <div class="p-4 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-card)]">
+                        <div id="admin-template-info" class="text-sm font-bold text-[var(--text-primary)] uppercase tracking-tight">
                             Memuat...
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="resetTemplateToDefault()" class="px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-50 rounded-lg transition">Reset ke Default</button>
-                            <button onclick="addNewMatchupRow()" class="px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg text-xs font-black hover:bg-emerald-100 transition uppercase">+ Tambah Match</button>
+                            <button onclick="resetTemplateToDefault()" class="px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/10 rounded-lg transition">Reset ke Default</button>
+                            <button onclick="addNewMatchupRow()" class="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg text-xs font-black hover:bg-emerald-500/20 transition uppercase">+ Tambah Match</button>
                         </div>
                     </div>
 
                     <!-- Matchup List -->
-                    <div class="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+                    <div class="flex-1 overflow-y-auto p-6 bg-[var(--bg-main)]">
                         <div id="admin-matchup-list" class="space-y-3">
                             <!-- Injected via JS -->
                         </div>
@@ -773,9 +786,9 @@
             </div>
 
             <!-- Footer -->
-            <div class="p-6 border-t border-slate-100 flex justify-end gap-3 bg-white">
-                <button onclick="closeModal('modal-database-admin')" class="px-8 py-3 text-slate-500 font-bold hover:bg-slate-50 rounded-xl transition">Batal</button>
-                <button onclick="saveScheduleDatabase()" class="btn-esports px-10 py-3 bg-slate-900 text-white font-bold rounded-xl shadow-lg flex items-center gap-2">
+            <div class="p-6 border-t border-[var(--border-color)] flex justify-end gap-3 bg-[var(--bg-secondary)]">
+                <button onclick="closeModal('modal-database-admin')" class="px-8 py-3 text-[var(--text-secondary)] font-bold hover:bg-[var(--bg-input)] rounded-xl transition">Batal</button>
+                <button onclick="saveScheduleDatabase()" class="btn-esports px-10 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg flex items-center gap-2">
                     <i class="ph ph-floppy-disk text-xl"></i> Simpan Database
                 </button>
             </div>

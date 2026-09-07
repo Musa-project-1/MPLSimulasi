@@ -28,11 +28,16 @@ export function loadStandings(teams = [], simTeams = []) {
 
             tr.className = `hover:brightness-95 transition-all ${zoneClass} ${index === 1 || index === 5 ? 'border-b-2 border-[var(--border-color)]' : ''}`;
 
+            const tieBadge = t.tieBreakerNote 
+                ? `<span class="ml-2 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[9px] font-mono font-bold border border-amber-500/20 tracking-tighter" title="Kriteria Tie-Breaker: ${t.tieBreakerNote}">TB</span>`
+                : '';
+
             tr.innerHTML = `
                 <td class="px-3 py-2 font-medium">${index + 1}</td>
                 <td class="px-4 py-2 text-left font-semibold flex items-center">
                     ${getTeamLogo(t.tag, 'w-6 h-6 mr-2')}
-                    ${t.team_name}
+                    <span>${t.team_name}</span>
+                    ${tieBadge}
                 </td>
                 <td class="px-2 py-2 font-medium text-emerald-600">${t.match_win}</td>
                 <td class="px-2 py-2 font-medium text-rose-600">${t.match_lose}</td>

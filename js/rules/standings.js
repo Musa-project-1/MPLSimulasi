@@ -150,7 +150,7 @@ export function calculateStandings(teams = [], matches = []) {
         match_diff: (parseInt(t.match_win) || 0) - (parseInt(t.match_lose) || 0)
     }));
 
-    return list.sort((a, b) => {
+    const sorted = list.sort((a, b) => {
         // 1. Match Win difference (or Match Wins)
         if (b.match_win !== a.match_win) {
             return b.match_win - a.match_win;
@@ -180,4 +180,23 @@ export function calculateStandings(teams = [], matches = []) {
         // 5. Fallback deterministic tag
         return (a.tag || '').localeCompare(b.tag || '');
     });
+
+    // Annotate tie-breaker reason if tied on match wins & points
+    for (let i = 0; i < sorted.length; i++) {
+        const curr = sorted[i];
+        const next = sorted[i + 1];
+
+        if (next && curr.match_win === next.match_win && curr.points === next.points && matches && matches.length > 0) {
+            const h2h = getHeadToHeadRecord(curr.id, next.id, matches);
+            if (h2h.diffMatches > 0) {
+                curr.tieBreakerNote = `H2H Match (${h2h.matchesA}-${h2h.matchesB}) vs ${next.tag}`;
+            } else if (h2h.diffGames > 0) {
+                curr.tieBreakerNote = `H2H Games (+${h2h.diffGames}) vs ${next.tag}`;
+            } else if (curr.game_win > next.game_win) {
+                curr.tieBreakerNote = `Game Wins (${curr.game_win} vs ${next.game_win})`;
+            }
+        }
+    }
+
+    return sorted;
 }

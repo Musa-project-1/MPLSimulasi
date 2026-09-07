@@ -12,6 +12,7 @@ import * as Schedule from './modules/schedule.js';
 import * as Playoffs from './modules/playoffs.js';
 import * as Export from './modules/export.js';
 import * as Admin from './modules/admin.js';
+import * as QuickSim from './modules/quick_sim.js';
 import { runSimulation } from './simulation/engine.js';
 
 // --- INITIALIZATION ---
@@ -58,6 +59,9 @@ window.addEventListener('DOMContentLoaded', () => {
     window.submitEditPlayer = Schedule.submitEditPlayer;
     window.openEditTeamModalFromRoster = Schedule.openEditTeamModalFromRoster;
     window.submitEditTeam = Schedule.submitEditTeam;
+    window.simulateCurrentWeekMatches = QuickSim.simulateCurrentWeekMatches;
+    window.resetCurrentWeekMatches = QuickSim.resetCurrentWeekMatches;
+    window.simulateAllRemainingMatches = QuickSim.simulateAllRemainingMatches;
 
     // Playoffs
     window.loadPlayoffs = Playoffs.loadPlayoffs;

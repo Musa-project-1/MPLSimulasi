@@ -34,6 +34,7 @@ describe('MPL Standings & Tie-Breaker Engine', () => {
         const standings = calculateStandings(mockTeams, matches);
         expect(standings[0].tag).toBe('ONIC');
         expect(standings[1].tag).toBe('RRQ');
+        expect(standings[0].tieBreakerNote).toContain('H2H Match');
     });
 
     it('resolves ties by H2H Game Difference if H2H match wins are equal (split 1-1 in double round robin)', () => {

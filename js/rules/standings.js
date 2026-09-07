@@ -231,3 +231,37 @@ export function calculateStandings(teams = [], matches = []) {
 
     return sorted;
 }
+
+/**
+ * Calculates historical standings strictly up to a given week (Week 1 through Week 9).
+ * Computes rankDelta movement compared to the preceding week.
+ */
+export function calculateStandingsUpToWeek(teams = [], matches = [], targetWeek = 9) {
+    const currentMatches = (matches || []).filter(m => 
+        m.status === 'COMPLETED' && parseInt(m.week, 10) <= targetWeek
+    );
+    const currentStats = recalculateTeamStatsFromMatches(teams, currentMatches);
+    const currentStandings = calculateStandings(currentStats, currentMatches);
+
+    let prevRankMap = {};
+    if (targetWeek > 1) {
+        const prevMatches = (matches || []).filter(m => 
+            m.status === 'COMPLETED' && parseInt(m.week, 10) <= (targetWeek - 1)
+        );
+        const prevStats = recalculateTeamStatsFromMatches(teams, prevMatches);
+        const prevStandings = calculateStandings(prevStats, prevMatches);
+        prevStandings.forEach((t, idx) => {
+            prevRankMap[t.id] = idx + 1;
+        });
+    }
+
+    return currentStandings.map((t, idx) => {
+        const currentRank = idx + 1;
+        const prevRank = prevRankMap[t.id] || currentRank;
+        const rankDelta = prevRank - currentRank;
+        return {
+            ...t,
+            rankDelta
+        };
+    });
+}

@@ -176,6 +176,53 @@ export async function exportSeasonReport() {
     }
 }
 
+export async function generateBroadcastGraphic(matchId, aspectFormat = 'feed') {
+    const match = Store.globalMatches.find(m => m.id === matchId);
+    if (!match) return;
+
+    const tA = Store.globalTeams.find(t => t.id === match.team_a_id);
+    const tB = Store.globalTeams.find(t => t.id === match.team_b_id);
+    if (!tA || !tB) return;
+
+    const dimensions = aspectFormat === 'story'
+        ? { width: 1080, height: 1920 }
+        : { width: 1080, height: 1080 };
+    const container = document.createElement('div');
+    Object.assign(container.style, {
+        position: 'fixed', left: '-99999px', top: '0', width: `${dimensions.width}px`,
+        height: `${dimensions.height}px`, background: 'linear-gradient(145deg, #09090b, #4c0519)',
+        color: '#fff', fontFamily: 'Inter, sans-serif', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: aspectFormat === 'story' ? '70px' : '38px', padding: '70px', boxSizing: 'border-box'
+    });
+
+    container.innerHTML = `
+        <div style="color:#fb7185;font-size:30px;font-weight:900;letter-spacing:.3em;text-transform:uppercase">MPLSIM STUDIO</div>
+        <div style="color:#fda4af;font-size:22px;letter-spacing:.18em;text-transform:uppercase">WEEK ${match.week} • VERIFIED SIMULATION</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:70px;width:100%">
+            <div style="text-align:center;width:260px"><div style="font-size:42px;font-weight:900">${tA.tag}</div><div style="font-size:120px;font-weight:900;color:${match.score_a > match.score_b ? '#34d399' : '#fff'}">${match.score_a || '-'}</div></div>
+            <div style="font-size:50px;color:#fb7185">:</div>
+            <div style="text-align:center;width:260px"><div style="font-size:42px;font-weight:900">${tB.tag}</div><div style="font-size:120px;font-weight:900;color:${match.score_b > match.score_a ? '#34d399' : '#fff'}">${match.score_b || '-'}</div></div>
+        </div>
+        <div style="font-size:20px;color:#cbd5e1;letter-spacing:.12em;text-transform:uppercase">${aspectFormat === 'story' ? 'Story 9:16' : 'Feed 1:1'}</div>
+    `;
+    document.body.appendChild(container);
+    showLoading(true);
+    try {
+        if (typeof html2canvas === 'undefined') throw new Error('html2canvas tidak tersedia');
+        const canvas = await html2canvas(container, { width: dimensions.width, height: dimensions.height, scale: 1, backgroundColor: null });
+        const link = document.createElement('a');
+        link.download = `MPLSim_${tA.tag}_vs_${tB.tag}_${aspectFormat}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (error) {
+        console.error(error);
+        customAlert('Gagal membuat kartu broadcast.');
+    } finally {
+        container.remove();
+        showLoading(false);
+    }
+}
+
 export async function shareMatchResult(matchId) {
     const match = Store.globalMatches.find(m => m.id === matchId);
     if (!match) return;

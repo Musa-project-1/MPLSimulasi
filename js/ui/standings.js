@@ -5,11 +5,19 @@
 import { globalMatches } from '../store.js';
 import { getTeamLogo } from './core.js';
 import { calculateClinchStatus } from '../rules/clinch.js';
+import { calculateStandingsUpToWeek } from '../rules/standings.js';
 
-export function loadStandings(teams = [], simTeams = []) {
+let activeStandingsWeek = 0;
+
+export function loadStandings(teams = [], simTeams = [], targetWeek = activeStandingsWeek) {
     const totalTeams = teams.length;
     const maxMatches = globalMatches.length > 0 ? (globalMatches.length / (totalTeams / 2)) : 16;
-    const enrichedTeams = calculateClinchStatus(teams, maxMatches);
+    const historicalTeams = targetWeek > 0
+        ? calculateStandingsUpToWeek(teams, globalMatches, targetWeek)
+        : teams;
+    const enrichedTeams = calculateClinchStatus(historicalTeams, maxMatches); 
+
+    renderStandingsTimeline(globalMatches, targetWeek); 
 
     const tbodyStanding = document.getElementById('standings-table-body');
     if (tbodyStanding) {
@@ -112,6 +120,24 @@ export function loadStandings(teams = [], simTeams = []) {
             tbodyProb.appendChild(tr);
         });
     }
+}
+
+export function setStandingsTimelineWeek(week, teams = []) {
+    activeStandingsWeek = parseInt(week, 10) || 0;
+    if (typeof window !== 'undefined' && window.loadStandings) {
+        window.loadStandings(teams, [], activeStandingsWeek);
+    }
+}
+
+export function renderStandingsTimeline(matches = [], selectedWeek = 0) {
+    const host = document.getElementById('standings-timeline');
+    if (!host) return;
+
+    const weeks = [...new Set((matches || []).map(m => parseInt(m.week, 10)).filter(Boolean))].sort((a, b) => a - b);
+    host.innerHTML = `
+        <button onclick="setStandingsTimelineWeek(0)" class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition ${selectedWeek === 0 ? 'bg-rose-600 text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'}">Semua</button>
+        ${weeks.map(week => `<button onclick="setStandingsTimelineWeek(${week})" class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition ${selectedWeek === week ? 'bg-rose-600 text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'}">W${week}</button>`).join('')}
+    `;
 }
 
 /**

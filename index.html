@@ -204,6 +204,7 @@
                         <p class="text-slate-500 text-sm mt-1">Gunakan tab di bawah untuk melihat mode tampilan.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
+                        <div id="standings-timeline" class="flex flex-wrap items-center gap-1.5 p-1 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)]" aria-label="Riwayat klasemen per pekan"></div>
                         <div class="flex items-center gap-1.5">
                             <button onclick="handleSharePredictionLink()" class="btn-esports px-3 py-1.5 bg-[var(--bg-secondary)] hover:bg-[var(--bg-card)] text-[var(--text-secondary)] hover:text-rose-500 rounded-lg text-xs font-bold transition flex items-center gap-1.5 border border-[var(--border-color)]" title="Bagikan Hasil Prediksi via Tautan Ringkas">
                                 <i class="ph ph-share-network text-base text-rose-500"></i> Share Link
@@ -323,6 +324,9 @@
                         </button>
                         <button onclick="simulateAllRemainingMatches()" class="btn-esports flex items-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 rounded-xl text-xs font-bold transition shadow-sm">
                             <i class="ph ph-fast-forward text-base"></i> Simulasikan Semua Sisa
+                        </button>
+                        <button onclick="openWhatIfSandbox()" class="btn-esports flex items-center gap-2 px-4 py-2 bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 border border-violet-500/20 rounded-xl text-xs font-bold transition shadow-sm">
+                            <i class="ph ph-flask text-base"></i> What-If Sandbox
                         </button>
                         <button onclick="resetCurrentWeekMatches()" class="btn-esports flex items-center gap-2 px-3 py-2 bg-slate-500/10 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 border border-[var(--border-color)] rounded-xl text-xs font-medium transition">
                             <i class="ph ph-arrow-counter-clockwise text-base"></i> Reset Minggu Ini

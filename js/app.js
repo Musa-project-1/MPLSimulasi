@@ -18,6 +18,7 @@ import * as AdminAuth from './modules/admin_auth.js';
 import * as Sound from './modules/sound.js';
 import * as TeamsDB from './modules/teams_db.js';
 import * as ShareUrl from './modules/share_url.js';
+import * as Sandbox from './modules/sandbox.js';
 import * as Supabase from './modules/supabase.js';
 import { runSimulation } from './simulation/engine.js';
 
@@ -92,7 +93,10 @@ window.addEventListener('DOMContentLoaded', () => {
     window.exportStandingsCSV = Export.exportStandingsCSV;
     window.exportSeasonReport = Export.exportSeasonReport;
     window.shareMatchResult = Export.shareMatchResult;
+    window.generateBroadcastGraphic = Export.generateBroadcastGraphic;
     window.handleSharePredictionLink = ShareUrl.handleSharePredictionLink;
+    window.computeWhatIfScenario = Sandbox.computeWhatIfScenario;
+    window.openWhatIfSandbox = Sandbox.openWhatIfSandbox;
 
     // Admin & Schedule Database
     window.openDatabaseAdmin = Admin.openDatabaseAdmin;
@@ -121,6 +125,7 @@ window.addEventListener('DOMContentLoaded', () => {
     window.initApp = initApp;
     window.loadDashboard = loadDashboard;
     window.loadStandings = loadStandings;
+    window.setStandingsTimelineWeek = (week) => UI.setStandingsTimelineWeek(week, Store.globalTeams);
     window.loadMatches = loadMatches;
     window.loadTeams = loadTeams;
     window.showRoster = UI.showRoster;
@@ -157,13 +162,13 @@ export async function loadDashboard() {
     if (data) UI.loadDashboard(data);
 }
 
-export async function loadStandings() {
+export async function loadStandings(targetWeek = 0) {
     const teams = await Schedule.fetchAPI('get_standings');
     if (!teams) return;
     Store.setGlobalTeams(teams);
 
     const simTeams = await runSimulation(teams);
-    UI.loadStandings(teams, simTeams);
+    UI.loadStandings(teams, simTeams, targetWeek);
 }
 
 export async function loadMatches() {

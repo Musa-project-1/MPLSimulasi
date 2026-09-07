@@ -135,7 +135,8 @@ export function loadMatches(data = []) {
                                 <div class="flex gap-1">
                                     <button onclick="quickSetScore('${match.id}', '', '')" class="text-[9px] font-black uppercase tracking-tighter text-slate-500 bg-[var(--bg-secondary)] px-2 py-0.5 rounded hover:bg-rose-500 hover:text-white transition-all" title="Reset Skor">RESET</button>
                                     <button onclick="openMatchDetailsModal('${match.id}')" class="text-[9px] font-black uppercase tracking-tighter text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded hover:bg-blue-600 hover:text-white transition-all">EDIT MVP</button>
-                                    <button onclick="shareMatchResult('${match.id}')" class="text-[9px] font-black uppercase tracking-tighter text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded hover:bg-emerald-600 hover:text-white transition-all" title="Share Graphic"><i class="ph ph-share-network"></i></button>
+                                    <button onclick="generateBroadcastGraphic('${match.id}', 'feed')" class="text-[9px] font-black uppercase tracking-tighter text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded hover:bg-emerald-600 hover:text-white transition-all" title="Export Feed 1:1"><i class="ph ph-square"></i></button>
+                                    <button onclick="generateBroadcastGraphic('${match.id}', 'story')" class="text-[9px] font-black uppercase tracking-tighter text-rose-600 bg-rose-500/10 px-2 py-0.5 rounded hover:bg-rose-600 hover:text-white transition-all" title="Export Story 9:16"><i class="ph ph-device-mobile"></i></button>
                                 </div>
                             ` : `
                                 <div class="flex flex-wrap justify-center gap-1 mt-1">

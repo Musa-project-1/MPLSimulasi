@@ -7,7 +7,22 @@ import { openModal, closeModal, showToast } from '../ui/core.js';
 import { safeStorage } from '../store.js';
 
 export const DEFAULT_ADMIN_PIN = 'mpl2026';
+export const MAX_FAILED_ATTEMPTS = 5;
+export const LOCKOUT_DURATION_MS = 60 * 1000;
+
 let sessionAdminAuth = false;
+let failedAttempts = 0;
+let lockoutUntil = 0;
+
+export function getRemainingLockoutSeconds() {
+    const diff = lockoutUntil - Date.now();
+    return diff > 0 ? Math.ceil(diff / 1000) : 0;
+}
+
+export function resetLockout() {
+    failedAttempts = 0;
+    lockoutUntil = 0;
+}
 
 export function getAdminPin() {
     return safeStorage.getItem('mpl_admin_pin') || DEFAULT_ADMIN_PIN;
@@ -38,10 +53,19 @@ export function isAdminLoggedIn() {
 }
 
 export function authenticateAdmin(inputPin) {
+    const remainingSeconds = getRemainingLockoutSeconds();
+    if (remainingSeconds > 0) {
+        return { 
+            success: false, 
+            error: `Terlalu banyak percobaan gagal. Akses diblokir sementara selama ${remainingSeconds} detik.` 
+        };
+    }
+
     const clean = (inputPin || '').trim();
     const correctPin = getAdminPin();
 
     if (clean === correctPin) {
+        resetLockout();
         try {
             if (typeof sessionStorage !== 'undefined') {
                 sessionStorage.setItem('mpl_admin_authenticated', 'true');
@@ -52,7 +76,20 @@ export function authenticateAdmin(inputPin) {
         return { success: true };
     }
 
-    return { success: false, error: "PIN Admin salah. Akses master ditolak." };
+    failedAttempts++;
+    if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+        lockoutUntil = Date.now() + LOCKOUT_DURATION_MS;
+        return {
+            success: false,
+            error: `PIN Admin salah 5 kali berturut-turut. Akses diblokir sementara selama 60 detik.`
+        };
+    }
+
+    const remainingTries = MAX_FAILED_ATTEMPTS - failedAttempts;
+    return { 
+        success: false, 
+        error: `PIN Admin salah. Sisa kesempatan: ${remainingTries} kali.` 
+    };
 }
 
 export function logoutAdmin() {

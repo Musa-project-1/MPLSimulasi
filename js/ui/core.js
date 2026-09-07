@@ -11,6 +11,19 @@ export function setCurrentViewWeek(week) { currentViewWeek = week; }
 export function getCurrentViewWeek() { return currentViewWeek; }
 
 /**
+ * Robust HTML Sanitizer to prevent Stored & Reflected XSS
+ */
+export function escapeHTML(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+/**
  * Geometric Monogram Logo for MPLSim
  * Distinct esports studio identity: Ruby / Crimson gradient squircle with angular faceted M.
  */

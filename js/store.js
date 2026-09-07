@@ -25,7 +25,14 @@ export const safeStorage = {
                 localStorage.setItem(k, v);
                 return;
             }
-        } catch (_) {}
+        } catch (err) {
+            if (err && (err.name === 'QuotaExceededError' || err.code === 22)) {
+                console.warn('LocalStorage Quota Exceeded. Fallback to memory.');
+                if (typeof window !== 'undefined' && window.showToast) {
+                    window.showToast("Penyimpanan lokal browser penuh. Harap hapus sesi lama.", "warning");
+                }
+            }
+        }
         memStorage.set(k, String(v));
     },
     removeItem: (k) => {

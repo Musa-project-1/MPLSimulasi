@@ -8,6 +8,7 @@ import { openModal, closeModal, customAlert, showToast, showLoading } from '../u
 import { renderDatabaseAdmin, addEmptyMatchupRow } from '../ui/admin.js';
 import { isSupabaseConfigured, supabaseRequest } from './supabase.js';
 import { isAdminLoggedIn, openAdminLoginModal } from './admin_auth.js';
+import { validateMatchupTeams } from '../rules/validators.js';
 
 export function getScheduleDatabase() {
     try {
@@ -153,16 +154,21 @@ export function saveScheduleDatabase() {
     const matchupRows = document.querySelectorAll('.admin-matchup-item');
     const newMatchups = [];
 
-    matchupRows.forEach(row => {
+    for (const row of matchupRows) {
         const week = parseInt(row.querySelector('.admin-input-week')?.value, 10) || 1;
         const day = parseInt(row.querySelector('.admin-input-day')?.value, 10) || 1;
         const teamA = row.querySelector('.admin-input-teamA')?.value || '';
         const teamB = row.querySelector('.admin-input-teamB')?.value || '';
 
         if (teamA || teamB) {
-            newMatchups.push({ week, day, teamA, teamB });
+            const check = validateMatchupTeams(teamA, teamB);
+            if (!check.valid) {
+                showToast(`Week ${week} Day ${day}: ${check.error}`, "error");
+                return;
+            }
+            newMatchups.push({ week, day, teamA: check.teamA, teamB: check.teamB });
         }
-    });
+    }
 
     newMatchups.sort((a, b) => (a.week - b.week) || (a.day - b.day));
 

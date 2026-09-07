@@ -5,7 +5,8 @@ import {
     sanitizeSessionName, 
     validateTeamData, 
     validatePlayerData, 
-    validateSessionImport 
+    validateSessionImport,
+    validateMatchupTeams 
 } from '../js/rules/validators.js';
 
 describe('Validation & Sanitization Engine', () => {
@@ -130,6 +131,26 @@ describe('Validation & Sanitization Engine', () => {
             expect(res.session.name).toBe("Test Session"); // stripped <b>
             expect(res.teams[0].match_win).toBe(3); // coerced to integer
             expect(res.matches[0].week).toBe(1);
+        });
+    });
+
+    describe('validateMatchupTeams', () => {
+        it('accepts valid distinct matchup teams', () => {
+            const res = validateMatchupTeams('ONIC', 'RRQ');
+            expect(res.valid).toBe(true);
+            expect(res.teamA).toBe('ONIC');
+            expect(res.teamB).toBe('RRQ');
+        });
+
+        it('rejects self-matchup where teamA equals teamB', () => {
+            const res = validateMatchupTeams('ONIC', 'ONIC');
+            expect(res.valid).toBe(false);
+            expect(res.error).toContain('tidak boleh tim yang sama');
+        });
+
+        it('rejects missing team selections', () => {
+            expect(validateMatchupTeams('', 'RRQ').valid).toBe(false);
+            expect(validateMatchupTeams('ONIC', '').valid).toBe(false);
         });
     });
 });

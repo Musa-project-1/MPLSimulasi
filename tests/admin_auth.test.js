@@ -5,12 +5,14 @@ import {
     logoutAdmin, 
     setAdminPin, 
     getAdminPin,
+    resetLockout,
     DEFAULT_ADMIN_PIN 
 } from '../js/modules/admin_auth.js';
 
 describe('Admin Authentication & Security Gate', () => {
     beforeEach(() => {
         logoutAdmin();
+        resetLockout();
     });
 
     it('defaults to not logged in', () => {
@@ -23,11 +25,22 @@ describe('Admin Authentication & Security Gate', () => {
         expect(isAdminLoggedIn()).toBe(true);
     });
 
-    it('rejects incorrect PIN and maintains unauthenticated state', () => {
-        const res = authenticateAdmin('wrong_password');
-        expect(res.success).toBe(false);
-        expect(res.error).toContain('salah');
-        expect(isAdminLoggedIn()).toBe(false);
+    it('rejects incorrect PIN and enforces lockout after 5 consecutive failures', () => {
+        for (let i = 1; i <= 4; i++) {
+            const res = authenticateAdmin('wrong_pin');
+            expect(res.success).toBe(false);
+            expect(res.error).toContain('Sisa kesempatan');
+        }
+
+        // 5th failure triggers lockout
+        const lockoutRes = authenticateAdmin('wrong_pin');
+        expect(lockoutRes.success).toBe(false);
+        expect(lockoutRes.error).toContain('diblokir sementara');
+
+        // Subsequent call is blocked by cooldown
+        const blockedRes = authenticateAdmin(DEFAULT_ADMIN_PIN);
+        expect(blockedRes.success).toBe(false);
+        expect(blockedRes.error).toContain('diblokir');
     });
 
     it('supports changing the Admin PIN with old PIN verification', () => {

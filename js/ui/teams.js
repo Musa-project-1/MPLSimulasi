@@ -3,7 +3,7 @@
  */
 
 import { globalTeams, globalMatches, saveSessionData } from '../store.js';
-import { getTeamLogo, openModal, closeModal, showToast, showLoading } from './core.js';
+import { getTeamLogo, openModal, closeModal, showToast, showLoading, escapeHTML } from './core.js';
 import { isAdminLoggedIn } from '../modules/admin_auth.js';
 import * as TeamsDB from '../modules/teams_db.js';
 
@@ -61,8 +61,8 @@ export function loadTeams(teams = []) {
             </div>
             <div onclick="showRoster('${team.id}')" class="cursor-pointer flex flex-col items-center w-full">
                 ${getTeamLogo(team.tag, 'w-20 h-20 mb-4 group-hover:scale-110 transition-transform drop-shadow-sm')}
-                <h3 class="font-bold text-xl text-[var(--text-primary)] font-oswald tracking-wide">${team.team_name}</h3>
-                <p class="text-xs font-bold text-rose-500 mt-1 uppercase tracking-widest opacity-80">${team.tag}</p>
+                <h3 class="font-bold text-xl text-[var(--text-primary)] font-oswald tracking-wide">${escapeHTML(team.team_name)}</h3>
+                <p class="text-xs font-bold text-rose-500 mt-1 uppercase tracking-widest opacity-80">${escapeHTML(team.tag)}</p>
                 <div class="mt-6 pt-4 border-t border-[var(--border-color)] w-full flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                     <span>${team.points || 0} Points</span>
                     <span class="text-blue-500 hover:underline">View Roster &rarr;</span>
@@ -144,11 +144,11 @@ export function renderRoster(teamId) {
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-1">
-                            <p class="font-bold text-[var(--text-primary)] text-lg leading-none">${p.nick}</p>
+                            <p class="font-bold text-[var(--text-primary)] text-lg leading-none">${escapeHTML(p.nick)}</p>
                             ${mvpCount > 0 ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase tracking-tighter flex items-center gap-1"><i class="ph-fill ph-crown text-[10px]"></i> ${mvpCount} MVP</span>` : ''}
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${roleBadgeClass}">${p.role}</span>
+                            <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${roleBadgeClass}">${escapeHTML(p.role)}</span>
                             <div class="fatigue-bar" title="Fatigue: ${fatigue}%">
                                 <div class="fatigue-fill ${fatigueClass}" style="width: ${fatigue}%"></div>
                             </div>

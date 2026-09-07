@@ -18,6 +18,21 @@ export const VALID_ROLES = [
  * - 2-1 or 1-2 (Decider game)
  * - '' and '' (Unplayed / Scheduled)
  */
+export function validateMatchupTeams(teamA, teamB) {
+    const cleanA = (teamA || '').trim().toUpperCase();
+    const cleanB = (teamB || '').trim().toUpperCase();
+
+    if (!cleanA || !cleanB) {
+        return { valid: false, error: "Tim Home dan Away harus dipilih." };
+    }
+
+    if (cleanA === cleanB) {
+        return { valid: false, error: "Tim Home dan Away tidak boleh tim yang sama." };
+    }
+
+    return { valid: true, teamA: cleanA, teamB: cleanB };
+}
+
 export function validateBo3Score(scoreA, scoreB) {
     // Check reset / scheduled state
     if ((scoreA === "" || scoreA === null || scoreA === undefined) &&

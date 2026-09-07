@@ -13,6 +13,7 @@ import * as Playoffs from './modules/playoffs.js';
 import * as Export from './modules/export.js';
 import * as Admin from './modules/admin.js';
 import * as QuickSim from './modules/quick_sim.js';
+import * as QuickImporter from './modules/quick_importer.js';
 import * as Supabase from './modules/supabase.js';
 import { runSimulation } from './simulation/engine.js';
 
@@ -66,6 +67,10 @@ window.addEventListener('DOMContentLoaded', () => {
     window.simulateCurrentWeekMatches = QuickSim.simulateCurrentWeekMatches;
     window.resetCurrentWeekMatches = QuickSim.resetCurrentWeekMatches;
     window.simulateAllRemainingMatches = QuickSim.simulateAllRemainingMatches;
+    window.openQuickImportModal = openQuickImportModal;
+    window.loadOfficialS18Preset = loadOfficialS18Preset;
+    window.handlePreviewParsedMatches = handlePreviewParsedMatches;
+    window.handleExecuteBatchImport = handleExecuteBatchImport;
 
     // Playoffs
     window.loadPlayoffs = Playoffs.loadPlayoffs;
@@ -268,6 +273,85 @@ export async function handleSyncCurrentSessionToCloud() {
         UI.showToast("Sesi aktif berhasil disinkronkan ke Supabase Cloud!", "success");
     } else {
         UI.showToast("Gagal sinkronisasi ke Supabase. Periksa kredensial dan tabel schema.", "error");
+    }
+}
+
+// --- FAST MATCH & SCORE IMPORTER CONTROLLER ---
+let cachedParsedMatches = [];
+
+export function openQuickImportModal() {
+    cachedParsedMatches = [];
+    const txt = document.getElementById('quick-import-textarea');
+    if (txt) txt.value = '';
+    const container = document.getElementById('quick-import-preview-container');
+    if (container) container.classList.add('hidden');
+    const countEl = document.getElementById('quick-import-parsed-count');
+    if (countEl) countEl.innerText = '';
+    UI.openModal('modal-quick-import');
+}
+
+export function loadOfficialS18Preset() {
+    const txt = document.getElementById('quick-import-textarea');
+    if (txt) {
+        txt.value = QuickImporter.OFFICIAL_S18_WEEK_1_TO_4_TEXT.trim();
+        handlePreviewParsedMatches();
+        UI.showToast("Data resmi Season 18 (Week 1-4) berhasil dimuat ke teks!", "info");
+    }
+}
+
+export function handlePreviewParsedMatches() {
+    const txt = document.getElementById('quick-import-textarea')?.value || '';
+    cachedParsedMatches = QuickImporter.parseMatchText(txt);
+
+    const container = document.getElementById('quick-import-preview-container');
+    const tbody = document.getElementById('quick-import-preview-tbody');
+    const countEl = document.getElementById('quick-import-parsed-count');
+
+    if (!tbody || !container) return;
+
+    if (cachedParsedMatches.length === 0) {
+        container.classList.add('hidden');
+        if (countEl) countEl.innerText = 'Tidak ada match valid yang terdeteksi.';
+        return;
+    }
+
+    container.classList.remove('hidden');
+    tbody.innerHTML = '';
+    if (countEl) countEl.innerText = `${cachedParsedMatches.length} pertandingan terdeteksi`;
+
+    cachedParsedMatches.forEach(m => {
+        const scoreBadge = m.status === 'COMPLETED' 
+            ? `<span class="font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">${m.scoreA}-${m.scoreB}</span>`
+            : `<span class="text-slate-400 font-mono">VS</span>`;
+
+        const statusBadge = m.status === 'COMPLETED'
+            ? `<span class="text-[9px] font-bold text-emerald-400 uppercase">Selesai</span>`
+            : `<span class="text-[9px] font-bold text-blue-400 uppercase">Terjadwal</span>`;
+
+        tbody.innerHTML += `
+            <tr class="hover:bg-[var(--bg-secondary)] transition-colors">
+                <td class="py-2 px-3 text-left font-bold text-[var(--text-secondary)]">W${m.week}</td>
+                <td class="py-2 px-3 text-right font-bold text-[var(--text-primary)]">${m.teamA}</td>
+                <td class="py-2 px-3 text-center">${scoreBadge}</td>
+                <td class="py-2 px-3 text-left font-bold text-[var(--text-primary)]">${m.teamB}</td>
+                <td class="py-2 px-3 text-center">${statusBadge}</td>
+            </tr>
+        `;
+    });
+}
+
+export async function handleExecuteBatchImport() {
+    if (!cachedParsedMatches || cachedParsedMatches.length === 0) {
+        handlePreviewParsedMatches();
+    }
+    if (cachedParsedMatches.length === 0) {
+        UI.showToast("Paste atau ketik teks pertandingan terlebih dahulu.", "warning");
+        return;
+    }
+
+    const success = await QuickImporter.applyBatchMatches(cachedParsedMatches, Store.activeSessionId);
+    if (success) {
+        UI.closeModal('modal-quick-import');
     }
 }
 

@@ -286,6 +286,9 @@
                 <div id="container-match-regular" class="w-full">
                     <!-- Quick Simulation Toolbar -->
                     <div class="flex flex-wrap items-center justify-center gap-2.5 my-4">
+                        <button onclick="openQuickImportModal()" class="btn-esports flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/20 rounded-xl text-xs font-bold transition shadow-sm" title="Fast input / paste jadwal & skor cepat">
+                            <i class="ph ph-textbox text-base"></i> Fast Paste Jadwal & Skor
+                        </button>
                         <button onclick="simulateCurrentWeekMatches()" class="btn-esports flex items-center gap-2 px-4 py-2 bg-rose-600/10 hover:bg-rose-600/20 text-rose-500 border border-rose-500/20 rounded-xl text-xs font-bold transition shadow-sm">
                             <i class="ph ph-lightning text-base"></i> Simulasikan Minggu Ini
                         </button>
@@ -841,6 +844,71 @@
                 <button onclick="closeModal('modal-database-admin')" class="px-8 py-3 text-[var(--text-secondary)] font-bold hover:bg-[var(--bg-input)] rounded-xl transition">Batal</button>
                 <button onclick="saveScheduleDatabase()" class="btn-esports px-10 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg flex items-center gap-2">
                     <i class="ph ph-cloud-arrow-up text-xl"></i> Simpan & Broadcast ke Cloud
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Fast Match & Score Importer -->
+    <div id="modal-quick-import" class="fixed inset-0 bg-slate-900/90 z-[300] flex items-center justify-center hidden opacity-0 transition-all backdrop-blur-md">
+        <div class="bg-[var(--bg-card)] rounded-3xl w-full max-w-3xl max-h-[85vh] shadow-2xl transform scale-95 transition-all flex flex-col overflow-hidden border border-[var(--border-color)]" id="modal-quick-import-content">
+            <!-- Header -->
+            <div class="p-6 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-secondary)]">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-600/20">
+                        <i class="ph-fill ph-textbox text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold font-oswald tracking-tight uppercase text-[var(--text-primary)]">Fast Match & Score Importer</h3>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Paste hasil atau jadwal teks untuk update cepat</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('modal-quick-import')" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-card)] p-2 rounded-full border border-[var(--border-color)] shadow-sm"><i class="ph ph-x text-xl"></i></button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 p-6 overflow-y-auto space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <label class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Paste Teks Pertandingan</label>
+                    <button type="button" onclick="loadOfficialS18Preset()" class="text-xs font-bold text-emerald-500 hover:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+                        <i class="ph ph-sparkle text-sm"></i> Load Data Resmi S18 (Week 1-4)
+                    </button>
+                </div>
+                <textarea id="quick-import-textarea" rows="6" placeholder="Contoh format paste:&#10;Week 1&#10;EVOS 2-0 RRQ&#10;NAVI 0-2 AE&#10;TLID 2-1 GEEK&#10;&#10;Week 2&#10;TLID 2-0 NAVI&#10;ONIC 2-1 EVOS" class="w-full p-4 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-2xl text-xs font-mono outline-none focus:border-blue-500 transition leading-relaxed"></textarea>
+
+                <div class="flex justify-between items-center">
+                    <button type="button" onclick="handlePreviewParsedMatches()" class="btn-esports px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="ph ph-eye text-base text-blue-400"></i> Preview Hasil Parsing
+                    </button>
+                    <span id="quick-import-parsed-count" class="text-xs text-[var(--text-secondary)] font-bold"></span>
+                </div>
+
+                <!-- Preview Container -->
+                <div id="quick-import-preview-container" class="hidden border border-[var(--border-color)] rounded-2xl overflow-hidden">
+                    <div class="max-h-56 overflow-y-auto">
+                        <table class="w-full text-center text-xs whitespace-nowrap border-collapse">
+                            <thead class="bg-[var(--bg-secondary)] text-[var(--text-secondary)] font-bold uppercase tracking-wider sticky top-0">
+                                <tr>
+                                    <th class="py-2.5 px-3 text-left">Week</th>
+                                    <th class="py-2.5 px-3 text-right">Home</th>
+                                    <th class="py-2.5 px-3">Skor</th>
+                                    <th class="py-2.5 px-3 text-left">Away</th>
+                                    <th class="py-2.5 px-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quick-import-preview-tbody" class="divide-y divide-[var(--border-color)]">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-6 border-t border-[var(--border-color)] flex justify-end gap-3 bg-[var(--bg-secondary)]">
+                <button onclick="closeModal('modal-quick-import')" class="px-6 py-2.5 text-[var(--text-secondary)] font-bold hover:bg-[var(--bg-input)] rounded-xl transition">Batal</button>
+                <button onclick="handleExecuteBatchImport()" class="btn-esports px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg flex items-center gap-2">
+                    <i class="ph ph-check-circle text-lg"></i> Terapkan & Broadcast ke Cloud
                 </button>
             </div>
         </div>

@@ -17,6 +17,7 @@ import * as QuickImporter from './modules/quick_importer.js';
 import * as AdminAuth from './modules/admin_auth.js';
 import * as Sound from './modules/sound.js';
 import * as TeamsDB from './modules/teams_db.js';
+import * as ShareUrl from './modules/share_url.js';
 import * as Supabase from './modules/supabase.js';
 import { runSimulation } from './simulation/engine.js';
 
@@ -28,6 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
     Theme.applySavedTheme();
     cleanupServiceWorkers();
     AdminAuth.updateAdminUIState();
+    ShareUrl.checkAndLoadSharedPrediction();
     Sessions.syncSessionsFromCloud().catch(err => console.warn('Cloud sync error:', err));
     Admin.syncScheduleTemplatesFromCloud().catch(err => console.warn('Cloud schedule sync error:', err));
     TeamsDB.syncMasterTeamsFromCloud().catch(err => console.warn('Cloud teams sync error:', err));
@@ -90,6 +92,7 @@ window.addEventListener('DOMContentLoaded', () => {
     window.exportStandingsCSV = Export.exportStandingsCSV;
     window.exportSeasonReport = Export.exportSeasonReport;
     window.shareMatchResult = Export.shareMatchResult;
+    window.handleSharePredictionLink = ShareUrl.handleSharePredictionLink;
 
     // Admin & Schedule Database
     window.openDatabaseAdmin = Admin.openDatabaseAdmin;

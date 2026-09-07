@@ -4,16 +4,18 @@
 
 import { globalMatches } from '../store.js';
 import { getTeamLogo } from './core.js';
+import { calculateClinchStatus } from '../rules/clinch.js';
 
 export function loadStandings(teams = [], simTeams = []) {
     const totalTeams = teams.length;
-    const maxMatches = globalMatches.length > 0 ? (globalMatches.length / (totalTeams / 2)) : 0;
+    const maxMatches = globalMatches.length > 0 ? (globalMatches.length / (totalTeams / 2)) : 16;
+    const enrichedTeams = calculateClinchStatus(teams, maxMatches);
 
     const tbodyStanding = document.getElementById('standings-table-body');
     if (tbodyStanding) {
         tbodyStanding.innerHTML = '';
 
-        teams.forEach((t, index) => {
+        enrichedTeams.forEach((t, index) => {
             const sisa = Math.max(0, Math.round(maxMatches - parseInt(t.match_played || 0)));
             const wrMatch = t.match_played > 0 ? Math.round((t.match_win / t.match_played) * 100) + '%' : '0%';
             const totalGame = parseInt(t.game_win || 0) + parseInt(t.game_lose || 0);
@@ -40,6 +42,10 @@ export function loadStandings(teams = [], simTeams = []) {
                 ? `<span class="ml-2 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[9px] font-mono font-bold border border-amber-500/20 tracking-tighter" title="Kriteria Tie-Breaker: ${t.tieBreakerNote}">TB</span>`
                 : '';
 
+            const clinchBadge = t.clinch 
+                ? `<span class="ml-1.5 px-1.5 py-0.5 rounded text-[8px] font-bold border uppercase tracking-tighter ${t.clinch.badgeClass}">${t.clinch.badgeLabel}</span>` 
+                : '';
+
             let streakBadge = '<span class="text-slate-400 font-mono text-xs">-</span>';
             if (t.streak && t.streak.count > 0) {
                 if (t.streak.type === 'W') {
@@ -55,6 +61,7 @@ export function loadStandings(teams = [], simTeams = []) {
                     ${getTeamLogo(t.tag, 'w-6 h-6 mr-2')}
                     <span>${t.team_name}</span>
                     ${zoneBadge}
+                    ${clinchBadge}
                     ${tieBadge}
                 </td>
                 <td class="px-2 py-2 font-medium text-emerald-600">${t.match_win}</td>

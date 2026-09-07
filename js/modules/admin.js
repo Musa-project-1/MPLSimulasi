@@ -19,10 +19,14 @@ export function getScheduleDatabase() {
 
 export async function syncScheduleTemplatesFromCloud() {
     if (!isSupabaseConfigured()) return;
+    const { isCacheFresh, touchCache } = await import('./supabase.js');
+    if (isCacheFresh('schedule_templates', 15)) return;
+
     try {
         const rows = await supabaseRequest('schedule_templates?id=eq.master_s18&limit=1', 'GET');
         if (rows && rows[0] && rows[0].templates_data) {
             localStorage.setItem('mpl_custom_schedule_db', JSON.stringify(rows[0].templates_data));
+            touchCache('schedule_templates');
         }
     } catch (err) {
         console.warn('Gagal sinkronisasi master jadwal dari cloud:', err);

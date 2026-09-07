@@ -7,7 +7,6 @@ import * as Config from '../config.js';
 import { openModal, closeModal, customAlert, showLoading, getTeamLogo } from '../ui/core.js';
 import { calculateStandings } from '../rules/standings.js';
 import { getScheduleDatabase } from './admin.js';
-import { isSupabaseConfigured, syncSessionToSupabase } from './supabase.js';
 import { validateBo3Score } from '../rules/validators.js';
 import { playScoreSound } from './sound.js';
 
@@ -283,13 +282,6 @@ export async function fetchAPI(action, payload = null) {
     try {
         await new Promise(r => setTimeout(r, 40));
         const result = handleMockData(action, payload);
-
-        if (['update_score', 'update_match_team_inline', 'edit_team'].includes(action)) {
-            if (isSupabaseConfigured() && Store.activeSessionId) {
-                syncSessionToSupabase(Store.activeSessionId).catch(err => console.warn('Supabase auto-sync failed:', err));
-            }
-        }
-
         return result;
     } catch (error) {
         console.error(error);

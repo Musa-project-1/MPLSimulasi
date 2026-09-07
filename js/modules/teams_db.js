@@ -243,12 +243,15 @@ export async function pushMasterTeamsToCloud() {
 
 export async function syncMasterTeamsFromCloud() {
     if (!isSupabaseConfigured()) return { success: false };
+    const { isCacheFresh, touchCache } = await import('./supabase.js');
+    if (isCacheFresh('master_teams_catalog', 15)) return { success: true };
 
     try {
         const rows = await supabaseRequest('schedule_templates?id=eq.master_teams_catalog&limit=1', 'GET');
         if (rows && rows[0] && rows[0].templates_data && Array.isArray(rows[0].templates_data.teams)) {
             const cloudTeams = rows[0].templates_data.teams;
             saveMasterTeams(cloudTeams);
+            touchCache('master_teams_catalog');
             return { success: true, teams: cloudTeams };
         }
     } catch (err) {

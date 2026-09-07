@@ -62,11 +62,6 @@ export function submitCreateSession(e) {
     Store.setActiveSessionName(sessionName);
 
     initializeMockDataForSession(id, scheduleKey);
-
-    if (isSupabaseConfigured()) {
-        syncSessionToSupabase(id).catch(err => console.warn('Supabase initial sync failed:', err));
-    }
-
     enterApp();
 }
 
@@ -101,6 +96,9 @@ export async function openSession(id) {
 
 export async function syncSessionsFromCloud() {
     if (!isSupabaseConfigured()) return;
+    const { isCacheFresh, touchCache } = await import('./supabase.js');
+    if (isCacheFresh('cloud_sessions', 15)) return;
+
     try {
         const cloudSessions = await fetchSessionsFromSupabase();
         if (!cloudSessions || !Array.isArray(cloudSessions)) return;
@@ -120,8 +118,10 @@ export async function syncSessionsFromCloud() {
             Store.saveSessionsList();
             renderSessionManager();
         }
+
+        touchCache('cloud_sessions');
     } catch (err) {
-        console.warn('Cloud sessions auto-sync:', err);
+        console.warn('Gagal sinkronisasi sesi dari cloud:', err);
     }
 }
 
@@ -212,10 +212,6 @@ export function handleImportFile(event) {
             Store.saveSessionsList();
 
             Store.saveSessionData(validation.teams, validation.matches, newId);
-
-            if (isSupabaseConfigured()) {
-                syncSessionToSupabase(newId).catch(err => console.warn('Supabase import sync error:', err));
-            }
 
             customAlert(`Berhasil mengimpor sesi: ${newSession.name}`);
             renderSessionManager();

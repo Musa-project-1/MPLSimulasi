@@ -240,3 +240,25 @@ export async function deleteSessionFromSupabase(sessionId) {
         return false;
     }
 }
+
+/**
+ * Super-Economical TTL Cache Strategy (15 Minutes Default)
+ * Prevents redundant Supabase read API calls when local cache is fresh.
+ */
+export function isCacheFresh(cacheKey, ttlMinutes = 15) {
+    try {
+        const raw = safeStorage.getItem(`mpl_ttl_${cacheKey}`);
+        if (!raw) return false;
+        const timestamp = parseInt(raw, 10);
+        if (isNaN(timestamp)) return false;
+        return (Date.now() - timestamp) < (ttlMinutes * 60 * 1000);
+    } catch (_) {
+        return false;
+    }
+}
+
+export function touchCache(cacheKey) {
+    try {
+        safeStorage.setItem(`mpl_ttl_${cacheKey}`, Date.now().toString());
+    } catch (_) {}
+}

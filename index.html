@@ -22,6 +22,7 @@
     
     <!-- External CSS -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/ui-polish.css">
 </head>
 <body class="text-[var(--text-primary)] flex flex-col h-screen overflow-hidden">
 
@@ -514,8 +515,8 @@
     </div>
 
     <!-- Modal Create Session -->
-    <div id="modal-create-session" class="fixed inset-0 bg-slate-900/80 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity backdrop-blur-sm">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-md shadow-2xl transform scale-95 transition-transform text-white" id="modal-create-session-content">
+    <div id="modal-create-session" class="app-modal fixed inset-0 z-[200] flex items-center justify-center hidden opacity-0 transition-opacity backdrop-blur-sm">
+        <div class="modal-surface rounded-2xl p-6 w-full max-w-md shadow-2xl transform scale-95 transition-transform" id="modal-create-session-content">
             <div class="flex justify-between items-center mb-5">
                 <h3 class="text-xl font-bold font-oswald tracking-wide">Buat Sesi Baru</h3>
                 <button onclick="closeModal('modal-create-session')" class="text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>

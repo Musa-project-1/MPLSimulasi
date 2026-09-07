@@ -6,6 +6,7 @@ import { TEAM_LOGOS } from '../config.js';
 import { sessionsList } from '../store.js';
 
 export let currentViewWeek = 1;
+let lastModalTrigger = null;
 
 export function setCurrentViewWeek(week) { currentViewWeek = week; }
 export function getCurrentViewWeek() { return currentViewWeek; }
@@ -122,10 +123,20 @@ export function openModal(id) {
     const m = document.getElementById(id);
     const c = document.getElementById(id + '-content');
     if (!m) return;
+    lastModalTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    m.setAttribute('role', 'dialog');
+    m.setAttribute('aria-modal', 'true');
+    m.setAttribute('aria-hidden', 'false');
+    if (c && !c.id) c.id = `${id}-content`;
     m.classList.remove('hidden');
+    document.body.classList.add('modal-open');
     setTimeout(() => {
         m.classList.remove('opacity-0');
-        if (c) c.classList.remove('scale-95');
+        if (c) {
+            c.classList.remove('scale-95');
+            const firstField = c.querySelector('input:not([type="hidden"]), select, textarea, button');
+            if (firstField) firstField.focus({ preventScroll: true });
+        }
     }, 10);
 }
 
@@ -133,10 +144,18 @@ export function closeModal(id) {
     const m = document.getElementById(id);
     const c = document.getElementById(id + '-content');
     if (!m) return;
+    m.setAttribute('aria-hidden', 'true');
     m.classList.add('opacity-0');
     if (c) c.classList.add('scale-95');
     setTimeout(() => {
         m.classList.add('hidden');
+        if (!document.querySelector('[id^="modal-"]:not(.hidden)')) {
+            document.body.classList.remove('modal-open');
+            if (lastModalTrigger && document.contains(lastModalTrigger)) {
+                lastModalTrigger.focus({ preventScroll: true });
+            }
+            lastModalTrigger = null;
+        }
     }, 280);
 }
 
@@ -305,6 +324,13 @@ export function renderSessionManager() {
 }
 
 if (typeof window !== 'undefined') {
+    document.addEventListener('click', (e) => {
+        const modal = e.target.closest('[id^="modal-"]');
+        if (modal && e.target === modal && !modal.classList.contains('hidden')) {
+            closeModal(modal.id);
+        }
+    });
+
     window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             const openModals = document.querySelectorAll('[id^="modal-"]:not(.hidden)');

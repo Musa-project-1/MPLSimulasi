@@ -97,6 +97,7 @@ window.addEventListener('DOMContentLoaded', () => {
     window.loadMatches = loadMatches;
     window.loadTeams = loadTeams;
     window.showRoster = UI.showRoster;
+    window.renderH2HMatrix = UI.renderH2HMatrix;
 });
 
 // --- CORE APP DATA CONTROLLER ---

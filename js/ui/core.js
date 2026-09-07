@@ -175,30 +175,27 @@ export function switchTab(viewId, element) {
 }
 
 export function switchSubTab(tabId) {
-    const btnStanding = document.getElementById('btn-tab-standing');
-    const btnProb = document.getElementById('btn-tab-prob');
-    if (btnStanding) {
-        btnStanding.className = tabId === 'standing'
-            ? "px-4 py-2 bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm rounded-md font-bold text-sm transition"
-            : "px-4 py-2 text-slate-600 rounded-md font-medium text-sm hover:text-[var(--text-primary)] transition";
-    }
-    if (btnProb) {
-        btnProb.className = tabId === 'prob'
-            ? "px-4 py-2 bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm rounded-md font-bold text-sm transition"
-            : "px-4 py-2 text-slate-600 rounded-md font-medium text-sm hover:text-[var(--text-primary)] transition";
-    }
+    const tabs = ['standing', 'matrix', 'prob'];
+    tabs.forEach(t => {
+        const btn = document.getElementById('btn-tab-' + t);
+        const panel = document.getElementById('tab-' + t);
+        if (btn) {
+            btn.className = t === tabId
+                ? "px-4 py-2 bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm rounded-md font-bold text-sm transition"
+                : "px-4 py-2 text-slate-400 rounded-md font-medium text-sm hover:text-[var(--text-primary)] transition";
+        }
+        if (panel) {
+            panel.classList.toggle('hidden', t !== tabId);
+            if (t === tabId) {
+                panel.style.animation = 'none';
+                panel.offsetHeight;
+                panel.style.animation = null;
+            }
+        }
+    });
 
-    const tabStanding = document.getElementById('tab-standing');
-    const tabProb = document.getElementById('tab-prob');
-
-    if (tabStanding) tabStanding.classList.toggle('hidden', tabId !== 'standing');
-    if (tabProb) tabProb.classList.toggle('hidden', tabId !== 'prob');
-
-    const activeTab = tabId === 'standing' ? tabStanding : tabProb;
-    if (activeTab) {
-        activeTab.style.animation = 'none';
-        activeTab.offsetHeight;
-        activeTab.style.animation = null;
+    if (tabId === 'matrix' && window.renderH2HMatrix) {
+        window.renderH2HMatrix();
     }
 }
 

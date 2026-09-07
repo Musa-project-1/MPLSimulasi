@@ -4,6 +4,7 @@
 
 import { globalTeams, globalMatches, saveSessionData } from '../store.js';
 import { getTeamLogo } from './core.js';
+import { TEAM_ROSTERS } from '../config.js';
 
 export let activeRosterTeamId = null;
 if (typeof window !== 'undefined') {
@@ -83,12 +84,18 @@ export function renderRoster(teamId) {
     if (!rosterList) return;
     rosterList.innerHTML = '';
 
-    if (!team.roster) {
-        const roles = ["EXP Laner", "Jungler", "Mid Laner", "Gold Laner", "Roamer"];
-        team.roster = roles.map((role, i) => ({
-            id: `p_${team.id}_${i}`,
-            nick: `${team.tag}_Player${i + 1}`,
-            role: role,
+    if (!team.roster || team.roster.length === 0) {
+        const defaultRoster = TEAM_ROSTERS[team.tag] || [
+            { nick: "EXP Player", role: "EXP Laner" },
+            { nick: "Jungler Player", role: "Jungler" },
+            { nick: "Mid Player", role: "Mid Laner" },
+            { nick: "Gold Player", role: "Gold Laner" },
+            { nick: "Roamer Player", role: "Roamer" }
+        ];
+        team.roster = defaultRoster.map((p, i) => ({
+            id: `p_${team.id}_${i + 1}`,
+            nick: p.nick,
+            role: p.role,
             stats: { kills: 0, deaths: 0, assists: 0, mvp: 0 }
         }));
         saveSessionData(globalTeams, globalMatches);

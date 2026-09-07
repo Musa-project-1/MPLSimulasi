@@ -97,3 +97,90 @@ export function loadStandings(teams = [], simTeams = []) {
         });
     }
 }
+
+/**
+ * Head-to-Head 9x9 Match Matrix Grid
+ * Standard esports broadcast matrix showing bilateral encounter results.
+ */
+export function renderH2HMatrix() {
+    const container = document.getElementById('tab-matrix');
+    if (!container) return;
+
+    const { globalTeams: teams, globalMatches: matches } = Store;
+
+    if (!teams || teams.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400">Belum ada tim yang tersedia untuk matriks H2H.</div>`;
+        return;
+    }
+
+    let html = `
+        <div class="overflow-x-auto">
+            <table class="w-full text-center text-xs whitespace-nowrap border-collapse mpl-table">
+                <thead>
+                    <tr>
+                        <th colspan="${teams.length + 1}" class="mpl-header py-4 text-2xl font-bold tracking-wider font-oswald">Head-to-Head Match Matrix</th>
+                    </tr>
+                    <tr class="mpl-subhead">
+                        <th class="px-3 py-3 w-16 text-left">Tim</th>
+                        ${teams.map(t => `<th class="px-2 py-3 font-bold text-center">${getTeamLogo(t.tag, 'w-5 h-5 mx-auto mb-1')}<span>${t.tag}</span></th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border-color)]">
+    `;
+
+    teams.forEach(rowTeam => {
+        html += `
+            <tr class="hover:bg-[var(--bg-secondary)] transition-colors">
+                <td class="px-3 py-2 text-left font-bold bg-[var(--bg-secondary)] flex items-center gap-2">
+                    ${getTeamLogo(rowTeam.tag, 'w-5 h-5')}
+                    <span>${rowTeam.tag}</span>
+                </td>
+        `;
+
+        teams.forEach(colTeam => {
+            if (rowTeam.id === colTeam.id) {
+                html += `<td class="px-2 py-2 bg-slate-500/10 text-slate-500 font-mono text-center">-</td>`;
+                return;
+            }
+
+            const h2hMatches = (matches || []).filter(m => 
+                m.status === 'COMPLETED' &&
+                ((m.team_a_id === rowTeam.id && m.team_b_id === colTeam.id) ||
+                 (m.team_a_id === colTeam.id && m.team_b_id === rowTeam.id))
+            );
+
+            if (h2hMatches.length === 0) {
+                html += `<td class="px-2 py-2 text-slate-400 text-center font-mono">-</td>`;
+                return;
+            }
+
+            const badges = h2hMatches.map(m => {
+                const isTeamA = m.team_a_id === rowTeam.id;
+                const myScore = isTeamA ? m.score_a : m.score_b;
+                const oppScore = isTeamA ? m.score_b : m.score_a;
+                const isWon = parseInt(myScore, 10) > parseInt(oppScore, 10);
+
+                const colorClass = isWon 
+                    ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/20" 
+                    : "bg-rose-500/15 text-rose-500 border-rose-500/20";
+
+                return `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border ${colorClass}">${myScore}-${oppScore}</span>`;
+            }).join(' ');
+
+            html += `<td class="px-2 py-2 text-center">${badges}</td>`;
+        });
+
+        html += `</tr>`;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+        <div class="p-3 text-[11px] text-[var(--text-secondary)] bg-[var(--bg-secondary)] text-center border-t border-[var(--border-color)]">
+            *Matriks H2H mencatat hasil pertandingan timbal balik langsung (Baris vs Kolom) pada musim reguler.
+        </div>
+    `;
+
+    container.innerHTML = html;
+}

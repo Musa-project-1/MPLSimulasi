@@ -5,6 +5,7 @@
 import * as Store from '../store.js';
 import { openModal, closeModal, customAlert, getTeamLogo } from '../ui/core.js';
 import { fetchAPI } from './schedule.js';
+import { validateTeamData, validatePlayerData } from '../rules/validators.js';
 
 let activePickerMatchId = null;
 let activePickerRole = null;
@@ -73,10 +74,17 @@ export function openEditPlayerModal(id, nick, role) {
 
 export function submitEditPlayer(e) {
     if (e && e.preventDefault) e.preventDefault();
-    const nick = (document.getElementById('edit-player-nick')?.value || '').trim();
-    const role = (document.getElementById('edit-player-role')?.value || '').trim();
+    const rawNick = document.getElementById('edit-player-nick')?.value || '';
+    const rawRole = document.getElementById('edit-player-role')?.value || '';
 
-    if (!nick) return;
+    const validation = validatePlayerData(rawNick, rawRole);
+    if (!validation.valid) {
+        customAlert(validation.error);
+        return;
+    }
+
+    const nick = validation.nick;
+    const role = validation.role;
 
     const teams = Store.getSessionTeams();
     teams.forEach(t => {
@@ -116,12 +124,16 @@ export function openEditTeamModalFromRoster() {
 export async function submitEditTeam(e) {
     if (e && e.preventDefault) e.preventDefault();
     const id = document.getElementById('edit-team-id')?.value;
-    const name = (document.getElementById('edit-team-name')?.value || '').trim();
-    const tag = (document.getElementById('edit-team-tag')?.value || '').trim();
+    const rawName = document.getElementById('edit-team-name')?.value || '';
+    const rawTag = document.getElementById('edit-team-tag')?.value || '';
 
-    if (!name || !tag) return;
+    const validation = validateTeamData(rawName, rawTag);
+    if (!validation.valid) {
+        customAlert(validation.error);
+        return;
+    }
 
-    await fetchAPI('edit_team', { id, team_name: name, tag });
+    await fetchAPI('edit_team', { id, team_name: validation.name, tag: validation.tag });
     closeModal('modal-edit-team');
     if (window.loadTeams) window.loadTeams();
     if (window.showRoster) window.showRoster(id);

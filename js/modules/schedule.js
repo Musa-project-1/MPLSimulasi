@@ -8,6 +8,7 @@ import { openModal, closeModal, customAlert, showLoading, getTeamLogo } from '..
 import { calculateStandings } from '../rules/standings.js';
 import { getScheduleDatabase } from './admin.js';
 import { isSupabaseConfigured, syncSessionToSupabase } from './supabase.js';
+import { validateBo3Score } from '../rules/validators.js';
 
 let activeDetailMatchId = null;
 
@@ -72,12 +73,20 @@ export async function quickSetScore(matchId, scoreA, scoreB) {
     const match = Store.globalMatches.find(m => m.id === matchId);
     if (!match) return;
 
-    if (scoreA !== "" && (!match.team_a_id || !match.team_b_id)) {
+    const validation = validateBo3Score(scoreA, scoreB);
+    if (!validation.valid) {
+        customAlert(validation.error);
+        return;
+    }
+
+    if (!validation.isReset && (!match.team_a_id || !match.team_b_id)) {
         customAlert("Harap tentukan kedua tim terlebih dahulu sebelum mengisi skor.");
         return;
     }
 
-    const status = scoreA === "" ? 'SCHEDULED' : 'COMPLETED';
+    const status = validation.isReset ? 'SCHEDULED' : 'COMPLETED';
+    const sA = validation.isReset ? "" : validation.scoreA;
+    const sB = validation.isReset ? "" : validation.scoreB;
 
     if (status === 'SCHEDULED') {
         const teams = Store.getSessionTeams();
@@ -100,8 +109,8 @@ export async function quickSetScore(matchId, scoreA, scoreB) {
 
     await fetchAPI('update_score', {
         match_id: matchId,
-        score_a: scoreA,
-        score_b: scoreB,
+        score_a: sA,
+        score_b: sB,
         status
     });
 
@@ -219,18 +228,25 @@ export async function saveMatchDetails() {
         }
     }
 
-    if (winA === 0 && winB === 0) {
+    const scoreValidation = validateBo3Score(
+        winA === 0 && winB === 0 ? "" : winA,
+        winA === 0 && winB === 0 ? "" : winB
+    );
+
+    if (!scoreValidation.valid) {
+        customAlert(scoreValidation.error);
+        return;
+    }
+
+    if (scoreValidation.isReset) {
         matchInStorage.games = [];
         Store.saveSessionData(teams, updatedMatches);
         await fetchAPI('update_score', { match_id: activeDetailMatchId, score_a: "", score_b: "", status: 'SCHEDULED' });
-    } else if (winA < 2 && winB < 2) {
-        customAlert("Tolak: Salah satu tim harus mencapai 2 kemenangan (BO3) untuk menyelesaikan pertandingan.");
-        return;
     } else {
         await fetchAPI('update_score', {
             match_id: activeDetailMatchId,
-            score_a: winA,
-            score_b: winB,
+            score_a: scoreValidation.scoreA,
+            score_b: scoreValidation.scoreB,
             status: 'COMPLETED'
         });
 

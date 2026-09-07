@@ -46,6 +46,7 @@ window.addEventListener('DOMContentLoaded', () => {
     window.closeModal = UI.closeModal;
     window.updateSettingLabel = UI.updateSettingLabel;
     window.setCurrentViewWeek = UI.setCurrentViewWeek;
+    window.setActiveTeamFilter = UI.setActiveTeamFilter;
 
     // Theme
     window.setTheme = Theme.setTheme;

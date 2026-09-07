@@ -6,6 +6,7 @@ import * as Store from '../store.js';
 import { customAlert } from '../ui/core.js';
 import { renderPlayoffBracket } from '../ui/playoffs.js';
 import { calculateStandings } from '../rules/standings.js';
+import { validatePlayoffScore } from '../rules/validators.js';
 
 export async function loadPlayoffs() {
     const matches = Store.getSessionMatches();
@@ -149,29 +150,25 @@ export function updatePlayoffScore(matchId, slot, value) {
     if (slot === 'A') targetMatch.scoreA = value;
     else targetMatch.scoreB = value;
 
-    const sA = parseInt(targetMatch.scoreA);
-    const sB = parseInt(targetMatch.scoreB);
     const isFinal = matchId === "p7" || matchId === "s3";
-    const winThreshold = isFinal ? 4 : 3;
+    const validation = validatePlayoffScore(targetMatch.scoreA, targetMatch.scoreB, isFinal);
 
-    if (!isNaN(sA) && !isNaN(sB) && (sA >= winThreshold || sB >= winThreshold)) {
-        if (sA === sB) {
-            customAlert("Skor tidak boleh seri!");
-            targetMatch.winner = null;
-        } else {
-            targetMatch.winner = sA > sB ? targetMatch.teamA : targetMatch.teamB;
+    if (!validation.valid) {
+        customAlert(validation.error);
+        targetMatch.winner = null;
+    } else if (validation.isComplete) {
+        targetMatch.winner = validation.winner === 'A' ? targetMatch.teamA : targetMatch.teamB;
 
-            if (targetMatch.nextMatch) {
-                let nextM = null;
-                playoffData.rounds.forEach(round => {
-                    const m = round.matches.find(x => x.id === targetMatch.nextMatch);
-                    if (m) nextM = m;
-                });
+        if (targetMatch.nextMatch) {
+            let nextM = null;
+            playoffData.rounds.forEach(round => {
+                const m = round.matches.find(x => x.id === targetMatch.nextMatch);
+                if (m) nextM = m;
+            });
 
-                if (nextM) {
-                    if (targetMatch.slot === "A") nextM.teamA = targetMatch.winner;
-                    else nextM.teamB = targetMatch.winner;
-                }
+            if (nextM) {
+                if (targetMatch.slot === "A") nextM.teamA = targetMatch.winner;
+                else nextM.teamB = targetMatch.winner;
             }
         }
     } else {

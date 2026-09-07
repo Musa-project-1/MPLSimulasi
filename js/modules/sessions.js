@@ -13,6 +13,7 @@ import {
     fetchSessionsFromSupabase,
     fetchSessionDataFromSupabase
 } from './supabase.js';
+import { sanitizeSessionName, validateSessionImport } from '../rules/validators.js';
 
 export function openCreateSessionModal() {
     const nameInput = document.getElementById('input-session-name');
@@ -22,13 +23,15 @@ export function openCreateSessionModal() {
 
 export function submitCreateSession(e) {
     if (e && e.preventDefault) e.preventDefault();
-    const sessionName = (document.getElementById('input-session-name')?.value || '').trim();
+    const rawSessionName = document.getElementById('input-session-name')?.value || '';
     const scheduleKey = document.getElementById('input-session-schedule')?.value || 'standard';
     
-    if (!sessionName) {
-        customAlert("Nama sesi tidak boleh kosong.");
+    const nameValidation = sanitizeSessionName(rawSessionName);
+    if (!nameValidation.valid) {
+        customAlert(nameValidation.error);
         return;
     }
+    const sessionName = nameValidation.name;
 
     closeModal('modal-create-session');
 
@@ -173,14 +176,15 @@ export function handleImportFile(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const data = JSON.parse(e.target.result);
-            if (data.type !== "MPL_SIM_SESSION" || !data.session) {
-                throw new Error("Format file bukan sesi MPLSim yang valid.");
+            const rawData = JSON.parse(e.target.result);
+            const validation = validateSessionImport(rawData);
+            if (!validation.valid) {
+                throw new Error(validation.error);
             }
 
             const newId = 'sess_' + Date.now();
             const newSession = {
-                ...data.session,
+                ...validation.session,
                 id: newId,
                 timestamp: Date.now()
             };
@@ -189,7 +193,11 @@ export function handleImportFile(event) {
             sessions.push(newSession);
             Store.saveSessionsList();
 
-            Store.saveSessionData(data.teams || [], data.matches || [], newId);
+            Store.saveSessionData(validation.teams, validation.matches, newId);
+
+            if (isSupabaseConfigured()) {
+                syncSessionToSupabase(newId).catch(err => console.warn('Supabase import sync error:', err));
+            }
 
             customAlert(`Berhasil mengimpor sesi: ${newSession.name}`);
             renderSessionManager();

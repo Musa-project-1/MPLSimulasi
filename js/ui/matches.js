@@ -5,6 +5,13 @@
 import { globalTeams } from '../store.js';
 import { currentViewWeek, getTeamLogo } from './core.js';
 
+let activeTeamFilter = '';
+
+export function setActiveTeamFilter(teamId) {
+    activeTeamFilter = teamId;
+    if (window.loadMatches) window.loadMatches();
+}
+
 export function loadMatches(data = []) {
     const timelineContainer = document.getElementById('timeline-container');
     if (timelineContainer) {
@@ -26,7 +33,30 @@ export function loadMatches(data = []) {
         timelineContainer.innerHTML = timelineHtml;
     }
 
-    const weekMatches = data.filter(m => parseInt(m.week) === currentViewWeek);
+    // Render Team Filter Pills
+    const filterContainer = document.getElementById('team-filter-container');
+    if (filterContainer && globalTeams.length > 0) {
+        let filterHtml = `
+            <button onclick="setActiveTeamFilter('')" class="px-3 py-1 rounded-full text-[11px] font-bold transition-all ${!activeTeamFilter ? 'bg-rose-600 text-white shadow-sm' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}">
+                Semua Tim
+            </button>
+        `;
+        globalTeams.forEach(t => {
+            const isSelected = activeTeamFilter === t.id;
+            filterHtml += `
+                <button onclick="setActiveTeamFilter('${t.id}')" class="px-2.5 py-1 rounded-full text-[11px] font-bold transition-all flex items-center gap-1.5 ${isSelected ? 'bg-rose-600 text-white shadow-sm' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}">
+                    ${getTeamLogo(t.tag, 'w-3.5 h-3.5')}
+                    <span>${t.tag}</span>
+                </button>
+            `;
+        });
+        filterContainer.innerHTML = filterHtml;
+    }
+
+    let weekMatches = data.filter(m => parseInt(m.week) === currentViewWeek);
+    if (activeTeamFilter) {
+        weekMatches = weekMatches.filter(m => m.team_a_id === activeTeamFilter || m.team_b_id === activeTeamFilter);
+    }
 
     const daysObj = {};
     weekMatches.forEach(m => {

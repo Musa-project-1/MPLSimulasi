@@ -3,8 +3,9 @@
  */
 
 import { globalTeams, globalMatches, saveSessionData } from '../store.js';
-import { getTeamLogo } from './core.js';
-import { TEAM_ROSTERS } from '../config.js';
+import { getTeamLogo, openModal, closeModal, showToast, showLoading } from './core.js';
+import { isAdminLoggedIn } from '../modules/admin_auth.js';
+import * as TeamsDB from '../modules/teams_db.js';
 
 export let activeRosterTeamId = null;
 if (typeof window !== 'undefined') {
@@ -15,12 +16,18 @@ export function loadTeams(teams = []) {
     const grid = document.getElementById('teams-grid');
     const rosterView = document.getElementById('roster-view');
     const backBtn = document.getElementById('btn-back-to-teams');
+    const adminActions = document.getElementById('admin-teams-actions');
 
     if (!grid || !rosterView || !backBtn) return;
 
     grid.classList.remove('hidden');
     rosterView.classList.add('hidden');
     backBtn.classList.add('hidden');
+
+    const isAdmin = isAdminLoggedIn();
+    if (adminActions) {
+        adminActions.classList.toggle('hidden', !isAdmin);
+    }
 
     grid.innerHTML = '';
 
@@ -36,18 +43,30 @@ export function loadTeams(teams = []) {
 
     teams.forEach(team => {
         const card = document.createElement('div');
-        card.className = 'glass-panel p-6 rounded-2xl flex flex-col items-center text-center shadow-sm relative group cursor-pointer hover:border-[var(--mpl-red)]';
-        card.onclick = () => showRoster(team.id);
+        card.className = 'glass-panel p-6 rounded-2xl flex flex-col items-center text-center shadow-sm relative group hover:border-rose-500/50 transition-all';
         card.innerHTML = `
-            <div class="absolute top-4 right-4 text-slate-400 group-hover:text-[var(--mpl-red)] transition-colors">
-                <i class="ph ph-users-three text-2xl"></i>
+            <div class="absolute top-4 right-4 flex items-center gap-1 z-10">
+                ${isAdmin ? `
+                    <button onclick="event.stopPropagation(); openEditTeamModalById('${team.id}')" class="p-1.5 text-slate-400 hover:text-blue-500 rounded-lg hover:bg-slate-500/10 transition" title="Edit Tim">
+                        <i class="ph ph-pencil-simple text-base"></i>
+                    </button>
+                    <button onclick="event.stopPropagation(); handleDeleteTeam('${team.id}')" class="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-500/10 transition" title="Hapus Tim">
+                        <i class="ph ph-trash text-base"></i>
+                    </button>
+                ` : `
+                    <div class="text-slate-400 group-hover:text-rose-500 transition-colors">
+                        <i class="ph ph-users-three text-xl"></i>
+                    </div>
+                `}
             </div>
-            ${getTeamLogo(team.tag, 'w-20 h-20 mb-4 group-hover:scale-110 transition-transform')}
-            <h3 class="font-bold text-xl text-[var(--text-primary)] font-oswald tracking-wide">${team.team_name}</h3>
-            <p class="text-xs font-bold text-[var(--mpl-red)] mt-1 uppercase tracking-widest opacity-60">${team.tag}</p>
-            <div class="mt-6 pt-4 border-t border-[var(--border-color)] w-full flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                <span>${team.points || 0} Points</span>
-                <span class="text-blue-500 hover:underline">View Roster &rarr;</span>
+            <div onclick="showRoster('${team.id}')" class="cursor-pointer flex flex-col items-center w-full">
+                ${getTeamLogo(team.tag, 'w-20 h-20 mb-4 group-hover:scale-110 transition-transform drop-shadow-sm')}
+                <h3 class="font-bold text-xl text-[var(--text-primary)] font-oswald tracking-wide">${team.team_name}</h3>
+                <p class="text-xs font-bold text-rose-500 mt-1 uppercase tracking-widest opacity-80">${team.tag}</p>
+                <div class="mt-6 pt-4 border-t border-[var(--border-color)] w-full flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                    <span>${team.points || 0} Points</span>
+                    <span class="text-blue-500 hover:underline">View Roster &rarr;</span>
+                </div>
             </div>
         `;
         grid.appendChild(card);
@@ -70,6 +89,12 @@ export function renderRoster(teamId) {
     const team = globalTeams.find(t => t.id === teamId);
     if (!team) return;
 
+    const isAdmin = isAdminLoggedIn();
+    const addPlayerBtn = document.getElementById('btn-add-player-roster');
+    if (addPlayerBtn) {
+        addPlayerBtn.classList.toggle('hidden', !isAdmin);
+    }
+
     const logoEl = document.getElementById('roster-team-logo');
     const nameEl = document.getElementById('roster-team-name');
     const tagEl = document.getElementById('roster-team-tag');
@@ -85,17 +110,12 @@ export function renderRoster(teamId) {
     rosterList.innerHTML = '';
 
     if (!team.roster || team.roster.length === 0) {
-        const defaultRoster = TEAM_ROSTERS[team.tag] || [
-            { nick: "EXP Player", role: "EXP Laner" },
-            { nick: "Jungler Player", role: "Jungler" },
-            { nick: "Mid Player", role: "Mid Laner" },
-            { nick: "Gold Player", role: "Gold Laner" },
-            { nick: "Roamer Player", role: "Roamer" }
-        ];
-        team.roster = defaultRoster.map((p, i) => ({
+        const defaultRoles = ["EXP Laner", "Jungler", "Mid Laner", "Gold Laner", "Roamer"];
+        team.roster = defaultRoles.map((role, i) => ({
             id: `p_${team.id}_${i + 1}`,
-            nick: p.nick,
-            role: p.role,
+            nick: `${team.tag}_Player${i + 1}`,
+            role,
+            fatigue: 0,
             stats: { kills: 0, deaths: 0, assists: 0, mvp: 0 }
         }));
         saveSessionData(globalTeams, globalMatches);
@@ -135,9 +155,16 @@ export function renderRoster(teamId) {
                         </div>
                     </div>
                 </div>
-                <button onclick="openEditPlayerModal('${p.id}', '${p.nick}', '${p.role}')" class="p-2 text-slate-300 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition">
-                    <i class="ph ph-pencil-simple text-xl"></i>
-                </button>
+                <div class="flex items-center gap-1">
+                    <button onclick="openEditPlayerModal('${p.id}', '${p.nick}', '${p.role}')" class="p-2 text-slate-400 hover:text-blue-500 transition" title="Edit Pemain">
+                        <i class="ph ph-pencil-simple text-base"></i>
+                    </button>
+                    ${isAdmin ? `
+                        <button onclick="handleDeletePlayer('${p.id}')" class="p-2 text-slate-400 hover:text-rose-500 transition" title="Hapus Pemain">
+                            <i class="ph ph-trash text-base"></i>
+                        </button>
+                    ` : ''}
+                </div>
             </div>
         `;
     });
@@ -166,5 +193,138 @@ export function renderRoster(teamId) {
                 </tr>
             `;
         });
+    }
+}
+
+export function openAddTeamModal() {
+    if (!isAdminLoggedIn()) {
+        showToast("Akses dibatasi. Silakan login sebagai Admin terlebih dahulu.", "warning");
+        return;
+    }
+    const tagInp = document.getElementById('input-new-team-tag');
+    const nameInp = document.getElementById('input-new-team-name');
+    if (tagInp) tagInp.value = '';
+    if (nameInp) nameInp.value = '';
+    openModal('modal-add-team');
+}
+
+export function handleSubmitAddTeam(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const tag = document.getElementById('input-new-team-tag')?.value || '';
+    const name = document.getElementById('input-new-team-name')?.value || '';
+
+    const res = TeamsDB.addMasterTeam({ tag, name });
+    if (!res.success) {
+        showToast(res.error, "error");
+        return;
+    }
+
+    if (Array.isArray(globalTeams)) {
+        globalTeams.push(res.team);
+        saveSessionData(globalTeams, globalMatches);
+    }
+
+    closeModal('modal-add-team');
+    showToast(`Tim ${res.team.tag} berhasil ditambahkan!`, "success");
+    loadTeams(globalTeams);
+}
+
+export function openEditTeamModalById(teamId) {
+    const team = globalTeams.find(t => t.id === teamId);
+    if (!team) return;
+    const tagInput = document.getElementById('edit-team-tag');
+    const nameInput = document.getElementById('edit-team-name');
+    if (tagInput) tagInput.value = team.tag;
+    if (nameInput) nameInput.value = team.team_name;
+    activeRosterTeamId = teamId;
+    openModal('modal-edit-team');
+}
+
+export function handleDeleteTeam(teamId) {
+    if (!isAdminLoggedIn()) {
+        showToast("Akses dibatasi. Silakan login sebagai Admin terlebih dahulu.", "warning");
+        return;
+    }
+    const team = globalTeams.find(t => t.id === teamId);
+    const teamTag = team ? team.tag : 'Tim';
+    if (!confirm(`Apakah Anda yakin ingin menghapus tim ${teamTag} dari database?`)) return;
+
+    TeamsDB.deleteMasterTeam(teamId);
+    const idx = globalTeams.findIndex(t => t.id === teamId);
+    if (idx !== -1) {
+        globalTeams.splice(idx, 1);
+        saveSessionData(globalTeams, globalMatches);
+    }
+
+    showToast(`Tim ${teamTag} berhasil dihapus.`, "info");
+    loadTeams(globalTeams);
+}
+
+export function openAddPlayerModal() {
+    if (!isAdminLoggedIn()) {
+        showToast("Akses dibatasi. Silakan login sebagai Admin terlebih dahulu.", "warning");
+        return;
+    }
+    const nickInp = document.getElementById('input-new-player-nick');
+    if (nickInp) nickInp.value = '';
+    openModal('modal-add-player');
+}
+
+export function handleSubmitAddPlayer(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!activeRosterTeamId) return;
+
+    const nick = document.getElementById('input-new-player-nick')?.value || '';
+    const role = document.getElementById('input-new-player-role')?.value || 'Mid Laner';
+
+    const res = TeamsDB.addPlayerToTeam(activeRosterTeamId, { nick, role });
+    if (!res.success) {
+        showToast(res.error, "error");
+        return;
+    }
+
+    const team = globalTeams.find(t => t.id === activeRosterTeamId);
+    if (team) {
+        team.roster = team.roster || [];
+        team.roster.push(res.player);
+        saveSessionData(globalTeams, globalMatches);
+    }
+
+    closeModal('modal-add-player');
+    showToast(`Pemain ${res.player.nick} berhasil ditambahkan!`, "success");
+    renderRoster(activeRosterTeamId);
+}
+
+export function handleDeletePlayer(playerId) {
+    if (!isAdminLoggedIn()) {
+        showToast("Akses dibatasi. Silakan login sebagai Admin terlebih dahulu.", "warning");
+        return;
+    }
+    if (!activeRosterTeamId) return;
+    if (!confirm("Apakah Anda yakin ingin menghapus pemain ini dari roster?")) return;
+
+    TeamsDB.removePlayerFromTeam(activeRosterTeamId, playerId);
+    const team = globalTeams.find(t => t.id === activeRosterTeamId);
+    if (team && team.roster) {
+        team.roster = team.roster.filter(p => p.id !== playerId);
+        saveSessionData(globalTeams, globalMatches);
+    }
+
+    showToast("Pemain berhasil dihapus dari roster.", "info");
+    renderRoster(activeRosterTeamId);
+}
+
+export async function handleBroadcastTeamsToCloud() {
+    if (!isAdminLoggedIn()) {
+        showToast("Akses dibatasi. Silakan login sebagai Admin terlebih dahulu.", "warning");
+        return;
+    }
+    showLoading(true);
+    const res = await TeamsDB.pushMasterTeamsToCloud();
+    showLoading(false);
+    if (res.success) {
+        showToast(`Katalog ${res.count} Tim & Roster berhasil dibroadcast ke Cloud!`, "success");
+    } else {
+        showToast("Gagal broadcast tim: " + res.error, "error");
     }
 }

@@ -1,3 +1,5 @@
+import { getMasterTeams } from './modules/teams_db.js';
+
 export const TEAM_LOGOS = {
     "ONIC": "img/Logo MPl/Onic.png",
     "BTR": "img/Logo MPl/btr_vit.png",
@@ -92,94 +94,6 @@ export const SCHEDULE_TEMPLATES = {
     }
 };
 
-export const TEAM_ROSTERS = {
-    "ONIC": [
-        { nick: "Lutpiii", role: "EXP Laner" },
-        { nick: "Kairi", role: "Jungler" },
-        { nick: "Sanz", role: "Mid Laner" },
-        { nick: "CW", role: "Gold Laner" },
-        { nick: "Kiboy", role: "Roamer" }
-    ],
-    "BTR": [
-        { nick: "Luke", role: "EXP Laner" },
-        { nick: "Super Kenn", role: "Jungler" },
-        { nick: "Moreno", role: "Mid Laner" },
-        { nick: "EMANN", role: "Gold Laner" },
-        { nick: "KYY", role: "Roamer" }
-    ],
-    "EVOS": [
-        { nick: "Fluffy", role: "EXP Laner" },
-        { nick: "Anavel", role: "Jungler" },
-        { nick: "Clawkun", role: "Mid Laner" },
-        { nick: "Branz", role: "Gold Laner" },
-        { nick: "Dreams", role: "Roamer" }
-    ],
-    "TLID": [
-        { nick: "Aran", role: "EXP Laner" },
-        { nick: "Faviannn", role: "Jungler" },
-        { nick: "Yehezkiel", role: "Mid Laner" },
-        { nick: "AeronnShikii", role: "Gold Laner" },
-        { nick: "Widy", role: "Roamer" }
-    ],
-    "AE": [
-        { nick: "Nino", role: "EXP Laner" },
-        { nick: "Gebe", role: "Jungler" },
-        { nick: "Cr1te", role: "Mid Laner" },
-        { nick: "Haizz", role: "Gold Laner" },
-        { nick: "Rasy", role: "Roamer" }
-    ],
-    "DEWA": [
-        { nick: "Xorizo", role: "EXP Laner" },
-        { nick: "Reyy", role: "Jungler" },
-        { nick: "Hijumee", role: "Mid Laner" },
-        { nick: "Watt", role: "Gold Laner" },
-        { nick: "Muezza", role: "Roamer" }
-    ],
-    "GEEK": [
-        { nick: "Gobs", role: "EXP Laner" },
-        { nick: "Vincentt", role: "Jungler" },
-        { nick: "Aboy", role: "Mid Laner" },
-        { nick: "Caderaa", role: "Gold Laner" },
-        { nick: "Baloyskie", role: "Roamer" }
-    ],
-    "NAVI": [
-        { nick: "Vann", role: "EXP Laner" },
-        { nick: "Kenshiro", role: "Jungler" },
-        { nick: "Sunset Lover", role: "Mid Laner" },
-        { nick: "Sawo", role: "Gold Laner" },
-        { nick: "Defender", role: "Roamer" }
-    ],
-    "RRQ": [
-        { nick: "Dyrennn", role: "EXP Laner" },
-        { nick: "Sutsujin", role: "Jungler" },
-        { nick: "Rinz", role: "Mid Laner" },
-        { nick: "Skylar", role: "Gold Laner" },
-        { nick: "Idok", role: "Roamer" }
-    ]
-};
-
 export function getInitialMockTeams() {
-    const mock_teams = [
-        {id: 't1', team_name: 'FNATIC ONIC', tag: 'ONIC', match_played: 0, match_win: 0, match_lose: 0, game_win: 0, game_lose: 0, points: 0},
-        {id: 't2', team_name: 'Bigetron by Vitality', tag: 'BTR', match_played: 0, match_win: 0, match_lose: 0, game_win: 0, game_lose: 0, points: 0},
-        {id: 't3', team_name: 'EVOS Glory', tag: 'EVOS', match_played: 0, match_win: 0, match_lose: 0, game_win: 0, game_lose: 0, points: 0},
-        {id: 't4', team_name: 'Team Liquid ID', tag: 'TLID', match_played: 0, match_win: 0, match_lose: 0, game_win: 0, game_lose: 0, points: 0},
-        {id: 't5', team_name: 'Alter Ego', tag: 'AE', match_played: 0, match_win: 0, match_lose: 0, game_win: 0, game_lose: 0, points: 0},
-        {id: 't6', team_name: 'Dewa United Esports', tag: 'DEWA', match_played: 0, match_win: 0, match_lose: 0, game_win: 0, game_lose: 0, points: 0},
-        {id: 't7', team_name: 'Geek Fam ID', tag: 'GEEK', match_played: 0, match_win: 0, match_lose: 0, game_win: 0, game_lose: 0, points: 0},
-        {id: 't8', team_name: 'Natus Vincere', tag: 'NAVI', match_played: 0, match_win: 0, match_lose: 0, game_win: 0, game_lose: 0, points: 0},
-        {id: 't9', team_name: 'RRQ Hoshi', tag: 'RRQ', match_played: 0, match_win: 0, match_lose: 0, game_win: 0, game_lose: 0, points: 0}
-    ];
-
-    mock_teams.forEach(team => {
-        const rosterData = TEAM_ROSTERS[team.tag] || [];
-        team.roster = rosterData.map((p, i) => ({
-            id: `p_${team.id}_${i + 1}`,
-            nick: p.nick,
-            role: p.role,
-            stats: { kills: 0, deaths: 0, assists: 0, mvp: 0 }
-        }));
-    });
-
-    return mock_teams;
+    return getMasterTeams();
 }

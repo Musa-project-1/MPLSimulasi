@@ -362,10 +362,20 @@
                         <h2 class="text-2xl font-bold">Manajemen Tim & Roster</h2>
                         <p class="text-slate-500 text-sm mt-1">Kelola daftar pemain dan lihat statistik performa individu.</p>
                     </div>
-                    <div id="btn-back-to-teams" class="hidden">
-                        <button onclick="loadTeams()" class="btn-esports px-4 py-2 bg-slate-100 text-slate-600 rounded-lg font-bold text-sm hover:bg-slate-200 transition">
-                            <i class="ph ph-arrow-left mr-2"></i> Kembali ke Daftar Tim
-                        </button>
+                    <div class="flex items-center gap-2">
+                        <div id="admin-teams-actions" class="hidden flex items-center gap-2">
+                            <button onclick="openAddTeamModal()" class="btn-esports px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                <i class="ph ph-plus-circle text-base"></i> Tambah Tim
+                            </button>
+                            <button onclick="handleBroadcastTeamsToCloud()" class="btn-esports px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm" title="Broadcast perubahan tim dan roster ke Supabase Cloud">
+                                <i class="ph ph-cloud-arrow-up text-base"></i> Broadcast Cloud
+                            </button>
+                        </div>
+                        <div id="btn-back-to-teams" class="hidden">
+                            <button onclick="loadTeams()" class="btn-esports px-4 py-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-xl font-bold text-xs hover:bg-[var(--bg-card)] transition flex items-center gap-1.5 border border-[var(--border-color)]">
+                                <i class="ph ph-arrow-left text-base"></i> Kembali ke Tim
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
@@ -374,19 +384,19 @@
 
                 <!-- Roster View (Hidden by default) -->
                 <div id="roster-view" class="hidden">
-                    <div class="glass-panel p-8 rounded-3xl bg-white shadow-xl">
-                        <div class="flex flex-col md:flex-row items-center gap-8 mb-10 pb-10 border-b border-slate-100">
-                            <div id="roster-team-logo" class="w-32 h-32 flex items-center justify-center bg-slate-50 rounded-full border-4 border-slate-100 shadow-inner"></div>
+                    <div class="glass-panel p-8 rounded-3xl bg-[var(--bg-card)] shadow-xl border border-[var(--border-color)]">
+                        <div class="flex flex-col md:flex-row items-center gap-8 mb-10 pb-10 border-b border-[var(--border-color)]">
+                            <div id="roster-team-logo" class="w-32 h-32 flex items-center justify-center bg-[var(--bg-secondary)] rounded-3xl border border-[var(--border-color)] shadow-inner"></div>
                             <div class="text-center md:text-left flex-1">
-                                <h3 id="roster-team-name" class="text-4xl font-bold font-oswald tracking-tight text-slate-900 uppercase">Team Name</h3>
-                                <p id="roster-team-tag" class="text-xl font-bold text-[var(--mpl-red)] opacity-80">TAG</p>
+                                <h3 id="roster-team-name" class="text-4xl font-bold font-oswald tracking-tight text-[var(--text-primary)] uppercase">Team Name</h3>
+                                <p id="roster-team-tag" class="text-xl font-bold text-rose-500 opacity-90">TAG</p>
                                 <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-                                    <span class="px-4 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-500 border border-slate-200 uppercase tracking-tighter">MPL Participant</span>
-                                    <span id="roster-team-points" class="px-4 py-1 bg-emerald-50 rounded-full text-xs font-bold text-emerald-600 border border-emerald-100 uppercase tracking-tighter">0 Points</span>
+                                    <span class="px-4 py-1 bg-[var(--bg-secondary)] rounded-full text-xs font-bold text-slate-400 border border-[var(--border-color)] uppercase tracking-tighter">MPL Participant</span>
+                                    <span id="roster-team-points" class="px-4 py-1 bg-emerald-500/15 rounded-full text-xs font-bold text-emerald-500 border border-emerald-500/30 uppercase tracking-tighter">0 Points</span>
                                 </div>
                             </div>
                             <div class="flex gap-3">
-                                <button onclick="openEditTeamModalFromRoster()" class="btn-esports p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 border border-blue-100 transition shadow-sm" title="Edit Identitas Tim">
+                                <button onclick="openEditTeamModalFromRoster()" class="btn-esports p-3 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl border border-blue-500/20 transition shadow-sm" title="Edit Identitas Tim">
                                     <i class="ph ph-pencil-simple text-2xl"></i>
                                 </button>
                             </div>
@@ -395,9 +405,14 @@
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                             <!-- Active Roster -->
                             <div>
-                                <h4 class="text-base font-bold mb-6 flex items-center font-oswald tracking-wide text-slate-700 uppercase">
-                                    <i class="ph-fill ph-users-three mr-2 text-blue-500"></i> Active Roster
-                                </h4>
+                                <div class="flex items-center justify-between mb-6">
+                                    <h4 class="text-base font-bold flex items-center font-oswald tracking-wide text-[var(--text-primary)] uppercase">
+                                        <i class="ph-fill ph-users-three mr-2 text-rose-500"></i> Active Roster
+                                    </h4>
+                                    <button id="btn-add-player-roster" onclick="openAddPlayerModal()" class="hidden text-xs font-bold text-rose-500 hover:text-rose-400 bg-rose-500/10 border border-rose-500/20 px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+                                        <i class="ph ph-user-plus text-sm"></i> Tambah Pemain
+                                    </button>
+                                </div>
                                 <div id="roster-list" class="space-y-4">
                                     <!-- Injected via JS -->
                                 </div>
@@ -997,6 +1012,62 @@
                 <div class="flex gap-2.5 pt-2">
                     <button type="button" onclick="closeModal('modal-admin-login')" class="w-1/2 py-2.5 text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-xl transition">Batal</button>
                     <button type="submit" class="btn-esports w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-rose-600/20 transition">Masuk Admin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Add Master Team -->
+    <div id="modal-add-team" class="fixed inset-0 bg-slate-900/80 z-[300] flex items-center justify-center hidden opacity-0 transition-opacity backdrop-blur-sm">
+        <div class="bg-[var(--bg-card)] rounded-3xl p-8 w-full max-w-md shadow-2xl transform scale-95 transition-transform border border-[var(--border-color)]" id="modal-add-team-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold font-oswald tracking-wide uppercase text-[var(--text-primary)]">Tambah Tim Baru</h3>
+                <button onclick="closeModal('modal-add-team')" class="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><i class="ph ph-x text-xl"></i></button>
+            </div>
+
+            <form onsubmit="handleSubmitAddTeam(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">Tag Tim (Singkatan 2-5 Huruf)</label>
+                    <input type="text" id="input-new-team-tag" required maxlength="6" placeholder="Contoh: AURA, GFLX" class="w-full px-4 py-2.5 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl uppercase font-bold outline-none focus:border-rose-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">Nama Lengkap Tim</label>
+                    <input type="text" id="input-new-team-name" required placeholder="Contoh: AURA Fire Esports" class="w-full px-4 py-2.5 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl outline-none focus:border-rose-500 transition">
+                </div>
+                <div class="flex gap-2.5 pt-4 border-t border-[var(--border-color)]">
+                    <button type="button" onclick="closeModal('modal-add-team')" class="w-1/2 py-2.5 text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-xl transition">Batal</button>
+                    <button type="submit" class="btn-esports w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-rose-600/20 transition">Simpan Tim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Add Player to Roster -->
+    <div id="modal-add-player" class="fixed inset-0 bg-slate-900/80 z-[300] flex items-center justify-center hidden opacity-0 transition-opacity backdrop-blur-sm">
+        <div class="bg-[var(--bg-card)] rounded-3xl p-8 w-full max-w-md shadow-2xl transform scale-95 transition-transform border border-[var(--border-color)]" id="modal-add-player-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold font-oswald tracking-wide uppercase text-[var(--text-primary)]">Tambah Pemain ke Roster</h3>
+                <button onclick="closeModal('modal-add-player')" class="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><i class="ph ph-x text-xl"></i></button>
+            </div>
+
+            <form onsubmit="handleSubmitAddPlayer(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">Nickname Pemain</label>
+                    <input type="text" id="input-new-player-nick" required placeholder="Contoh: Kabuki, High" class="w-full px-4 py-2.5 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl font-bold outline-none focus:border-rose-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">Role / Lane</label>
+                    <select id="input-new-player-role" class="w-full px-4 py-2.5 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl outline-none focus:border-rose-500 transition font-bold">
+                        <option value="EXP Laner">EXP Laner</option>
+                        <option value="Jungler">Jungler</option>
+                        <option value="Mid Laner">Mid Laner</option>
+                        <option value="Gold Laner">Gold Laner</option>
+                        <option value="Roamer">Roamer</option>
+                    </select>
+                </div>
+                <div class="flex gap-2.5 pt-4 border-t border-[var(--border-color)]">
+                    <button type="button" onclick="closeModal('modal-add-player')" class="w-1/2 py-2.5 text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-xl transition">Batal</button>
+                    <button type="submit" class="btn-esports w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-rose-600/20 transition">Tambahkan Pemain</button>
                 </div>
             </form>
         </div>

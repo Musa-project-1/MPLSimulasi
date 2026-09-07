@@ -16,6 +16,7 @@ import * as QuickSim from './modules/quick_sim.js';
 import * as QuickImporter from './modules/quick_importer.js';
 import * as AdminAuth from './modules/admin_auth.js';
 import * as Sound from './modules/sound.js';
+import * as TeamsDB from './modules/teams_db.js';
 import * as Supabase from './modules/supabase.js';
 import { runSimulation } from './simulation/engine.js';
 
@@ -29,6 +30,7 @@ window.addEventListener('DOMContentLoaded', () => {
     AdminAuth.updateAdminUIState();
     Sessions.syncSessionsFromCloud().catch(err => console.warn('Cloud sync error:', err));
     Admin.syncScheduleTemplatesFromCloud().catch(err => console.warn('Cloud schedule sync error:', err));
+    TeamsDB.syncMasterTeamsFromCloud().catch(err => console.warn('Cloud teams sync error:', err));
 
     // Attach modules to window for inline HTML template compatibility
     // Sessions
@@ -118,7 +120,18 @@ window.addEventListener('DOMContentLoaded', () => {
     window.loadMatches = loadMatches;
     window.loadTeams = loadTeams;
     window.showRoster = UI.showRoster;
+    window.renderRoster = UI.renderRoster;
     window.renderH2HMatrix = UI.renderH2HMatrix;
+
+    // Dynamic Teams & Players Management
+    window.openAddTeamModal = UI.openAddTeamModal;
+    window.handleSubmitAddTeam = UI.handleSubmitAddTeam;
+    window.openEditTeamModalById = UI.openEditTeamModalById;
+    window.handleDeleteTeam = UI.handleDeleteTeam;
+    window.openAddPlayerModal = UI.openAddPlayerModal;
+    window.handleSubmitAddPlayer = UI.handleSubmitAddPlayer;
+    window.handleDeletePlayer = UI.handleDeletePlayer;
+    window.handleBroadcastTeamsToCloud = UI.handleBroadcastTeamsToCloud;
 });
 
 // --- CORE APP DATA CONTROLLER ---

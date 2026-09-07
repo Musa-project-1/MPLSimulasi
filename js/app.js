@@ -111,7 +111,6 @@ window.addEventListener('DOMContentLoaded', () => {
     window.openSettingsModal = openSettingsModal;
     window.saveSettings = saveSettings;
     window.handleTestSupabase = handleTestSupabase;
-    window.handleSyncCurrentSessionToCloud = handleSyncCurrentSessionToCloud;
 
     // App Loaders
     window.initApp = initApp;
@@ -281,32 +280,6 @@ export async function handleTestSupabase() {
     if (sbBadge && result.success) {
         sbBadge.className = "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
         sbBadge.innerText = "Cloud Active";
-    }
-}
-
-export async function handleSyncCurrentSessionToCloud() {
-    if (!Store.activeSessionId) {
-        UI.showToast("Buka atau buat sesi terlebih dahulu.", "warning");
-        return;
-    }
-
-    const url = document.getElementById('setting-supabase-url')?.value || '';
-    const key = document.getElementById('setting-supabase-key')?.value || '';
-    Supabase.saveSupabaseConfig(url, key);
-
-    if (!Supabase.isSupabaseConfigured()) {
-        UI.showToast("Masukkan URL dan Anon Key Supabase terlebih dahulu.", "warning");
-        return;
-    }
-
-    UI.showLoading(true);
-    const success = await Supabase.syncSessionToSupabase(Store.activeSessionId);
-    UI.showLoading(false);
-
-    if (success) {
-        UI.showToast("Sesi aktif berhasil disinkronkan ke Supabase Cloud!", "success");
-    } else {
-        UI.showToast("Gagal sinkronisasi ke Supabase. Periksa kredensial dan tabel schema.", "error");
     }
 }
 

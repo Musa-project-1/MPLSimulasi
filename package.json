@@ -1,0 +1,13 @@
+{
+  "name": "mpl-simulasi",
+  "version": "2.0.0",
+  "description": "Simulator Klasemen, Jadwal, Probabilitas Bracket Playoff, dan Monte Carlo Match MPL",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.7"
+  }
+}

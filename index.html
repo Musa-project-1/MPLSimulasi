@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MPL Pro Simulator - Session Manager</title>
+    <title>MPLSim - Tournament & Bracket Simulator</title>
+    <meta name="description" content="Simulator Klasemen, Jadwal, Probabilitas Bracket Playoff, dan Monte Carlo Match MPL">
+    <meta name="theme-color" content="#0a0c10">
+    <link rel="icon" type="image/svg+xml" href="img/logo.svg">
+    <link rel="manifest" href="manifest.webmanifest">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -23,21 +27,22 @@
 <body class="text-[var(--text-primary)] flex flex-col h-screen overflow-hidden">
 
     <!-- VIEW: SESSION MANAGER (LANDING PAGE) -->
-    <div id="view-landing" class="fixed inset-0 bg-[#0b1120] z-[100] flex flex-col items-center justify-start py-20 text'-white overflow-y-auto">
+    <div id="view-landing" class="fixed inset-0 bg-[#0b1120] z-[100] flex flex-col items-center justify-start py-20 text-white overflow-y-auto">
         <div class="max-w-4xl w-full px-6">
             <!-- Header Session Manager -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-                <div>''
-                    <h2 class="text-emerald-400 font-bold tracking-widest text-sm uppercase mb-1">Session Manager</h2>
-                    <h1 class="text-4xl font-oswald font-bold text-white flex items-center">
-                        <i class="ph-fill ph-sword text-[#9B111E] mr-3"></i> MPL<span class="text-[#9B111E]">Sim</span>
+                <div>
+                    <h2 class="text-rose-400 font-bold tracking-widest text-xs uppercase mb-1">Session Manager</h2>
+                    <h1 class="text-4xl font-oswald font-bold text-white flex items-center gap-3">
+                        <img src="img/logo.svg" alt="MPLSim" class="w-10 h-10 drop-shadow-md">
+                        MPL<span class="text-[#E11D48]">Sim</span>
                     </h1>
                 </div>
                 <div class="flex flex-wrap justify-center gap-3">
                     <button onclick="importSession()" class="btn-esports px-5 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-full font-bold transition flex items-center shadow-lg border border-slate-600">
                         <i class="ph ph-file-arrow-up mr-2 text-xl text-blue-400"></i> Import
                     </button>
-                    <button onclick="openCreateSessionModal()" class="btn-esports px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full font-bold transition flex items-center shadow-lg shadow-emerald-500/20">
+                    <button onclick="openCreateSessionModal()" class="btn-esports px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-full font-bold transition flex items-center shadow-lg shadow-rose-600/20">
                         <i class="ph ph-plus mr-2 text-xl"></i> Create Session
                     </button>
                     <input type="file" id="import-file-input" class="hidden" accept=".json" onchange="handleImportFile(event)">
@@ -61,9 +66,9 @@
     <header id="app-header" class="border-b border-slate-200 z-20 hidden sticky top-0 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center">
             <!-- Logo (Left) -->
-            <div class="flex items-center cursor-pointer group" onclick="switchTab('dashboard', document.getElementById('nav-dashboard'))">
-                <i class="ph-fill ph-sword text-[var(--mpl-red)] text-2xl mr-2 group-hover:scale-110 transition-transform"></i>
-                <h1 class="font-bold text-xl tracking-tight text-slate-900">MPL<span class="text-[var(--mpl-red)]">Sim</span></h1>
+            <div class="flex items-center cursor-pointer group gap-2.5" onclick="switchTab('dashboard', document.getElementById('nav-dashboard'))">
+                <img src="img/logo.svg" alt="MPLSim" class="w-8 h-8 group-hover:scale-105 transition-transform drop-shadow-sm">
+                <h1 class="font-bold text-xl tracking-tight text-[var(--text-primary)]">MPL<span class="text-[var(--mpl-red)]">Sim</span></h1>
             </div>
 
             <!-- Session Info (Center) -->

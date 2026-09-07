@@ -55,6 +55,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Theme
     window.setTheme = Theme.setTheme;
+    window.toggleTheme = Theme.toggleTheme;
 
     // Schedule, Match, & Team Editing
     window.changeWeek = Schedule.changeWeek;

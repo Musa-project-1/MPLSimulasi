@@ -87,6 +87,11 @@
                         <li><a href="#" onclick="switchTab('standings', this)" id="nav-standings" class="px-4 py-2 text-slate-600 hover:text-[var(--mpl-red)] transition-all font-bold text-[11px] uppercase tracking-wide">Klasemen</a></li>
                         <li><a href="#" onclick="switchTab('matches', this)" id="nav-matches" class="px-4 py-2 text-slate-600 hover:text-[var(--mpl-red)] transition-all font-bold text-[11px] uppercase tracking-wide">Jadwal</a></li>
                         <li><a href="#" onclick="switchTab('teams', this)" id="nav-teams" class="px-4 py-2 text-slate-600 hover:text-[var(--mpl-red)] transition-all font-bold text-[11px] uppercase tracking-wide">Teams</a></li>
+                        <li>
+                            <button onclick="toggleTheme()" class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" title="Toggle Tema (Dark/Light)">
+                                <i id="theme-toggle-icon" class="ph ph-sun text-lg"></i>
+                            </button>
+                        </li>
                         <li><a href="#" onclick="openSettingsModal()" class="px-3 py-2 text-slate-400 hover:text-slate-900 transition-all font-bold text-[11px] uppercase tracking-wide" title="Settings"><i class="ph ph-gear text-lg"></i></a></li>
                         <li id="header-admin-badge-container">
                             <button onclick="openAdminLoginModal()" class="p-2 text-slate-400 hover:text-slate-900 transition-colors" title="Login Portal Admin">
@@ -672,18 +677,18 @@
                     <div id="section-settings-appearance" class="settings-section hidden space-y-8">
                         <div class="p-6 bg-[var(--bg-secondary)] rounded-3xl border border-[var(--border-color)]">
                             <h5 class="text-sm font-bold text-[var(--text-primary)] mb-6">Application Theme</h5>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <button onclick="setTheme('light')" class="flex flex-col gap-3 p-4 rounded-2xl border-2 transition-all theme-btn-light bg-white border-slate-200">
-                                    <div class="w-full h-12 bg-slate-50 rounded-xl border border-slate-100"></div>
-                                    <span class="text-[11px] font-black uppercase text-slate-600 text-center">Light</span>
+                                    <div class="w-full h-12 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-center text-slate-700">
+                                        <i class="ph ph-sun text-2xl"></i>
+                                    </div>
+                                    <span class="text-[11px] font-black uppercase text-slate-600 text-center">Light Mode</span>
                                 </button>
                                 <button onclick="setTheme('dark')" class="flex flex-col gap-3 p-4 rounded-2xl border-2 transition-all theme-btn-dark bg-slate-900 border-transparent">
-                                    <div class="w-full h-12 bg-slate-800 rounded-xl border border-slate-700"></div>
-                                    <span class="text-[11px] font-black uppercase text-slate-400 text-center">Dark</span>
-                                </button>
-                                <button onclick="setTheme('mpl')" class="flex flex-col gap-3 p-4 rounded-2xl border-2 transition-all theme-btn-mpl bg-[#1a0505] border-transparent">
-                                    <div class="w-full h-12 bg-[#4a0000] rounded-xl border border-[#9B111E]"></div>
-                                    <span class="text-[11px] font-black uppercase text-[#9B111E] text-center">MPL Red</span>
+                                    <div class="w-full h-12 bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-center text-slate-200">
+                                        <i class="ph ph-moon text-2xl"></i>
+                                    </div>
+                                    <span class="text-[11px] font-black uppercase text-slate-400 text-center">Dark Esports</span>
                                 </button>
                             </div>
                         </div>

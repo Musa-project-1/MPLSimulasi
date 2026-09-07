@@ -30,19 +30,24 @@
     --shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
 }
 
-.theme-mpl {
-    /* Rich Crimson & Onyx */
-    --bg-main: #0d0202;
-    --bg-card: rgba(26, 5, 5, 0.75);
-    --bg-header: rgba(13, 2, 2, 0.85);
-    --bg-secondary: #3d0a0a;
-    --bg-input: #1a0505;
-    --text-primary: #fef2f2;
-    --text-secondary: #fca5a5;
-    --text-muted: #991b1b;
-    --border-color: rgba(155, 17, 30, 0.3);
-    --shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+header#app-header {
+    background-color: var(--bg-header);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-color: var(--border-color);
 }
+
+/* Tournament Standings Zones */
+tr.zone-upper td:first-child { border-left: 3px solid #10b981 !important; }
+tr.zone-playin td:first-child { border-left: 3px solid #3b82f6 !important; }
+tr.zone-elim td:first-child, tr.zone-elimination td:first-child { border-left: 3px solid #f43f5e !important; }
+
+/* Player Lane Role Badges */
+.badge-role-exp { background: rgba(249, 115, 22, 0.15); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.3); }
+.badge-role-jungle { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-role-mid { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3); }
+.badge-role-gold { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-role-roam { background: rgba(14, 165, 233, 0.15); color: #0ea5e9; border: 1px solid rgba(14, 165, 233, 0.3); }
 
 body { 
     font-family: 'Inter', sans-serif; 

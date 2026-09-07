@@ -22,9 +22,17 @@ export function loadStandings(teams = [], simTeams = []) {
             const tr = document.createElement('tr');
 
             let zoneClass = '';
-            if (index < 2) zoneClass = 'zone-upper';
-            else if (index < 6) zoneClass = 'zone-playin';
-            else zoneClass = 'zone-elim';
+            let zoneBadge = '';
+            if (index < 2) {
+                zoneClass = 'zone-upper';
+                zoneBadge = `<span class="hidden sm:inline-block ml-2 px-1.5 py-0.5 rounded text-[8px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-tighter">Upper</span>`;
+            } else if (index < 6) {
+                zoneClass = 'zone-playin';
+                zoneBadge = `<span class="hidden sm:inline-block ml-2 px-1.5 py-0.5 rounded text-[8px] font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20 uppercase tracking-tighter">Play-in</span>`;
+            } else {
+                zoneClass = 'zone-elim';
+                zoneBadge = `<span class="hidden sm:inline-block ml-2 px-1.5 py-0.5 rounded text-[8px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20 uppercase tracking-tighter">Elim</span>`;
+            }
 
             tr.className = `hover:brightness-95 transition-all ${zoneClass} ${index === 1 || index === 5 ? 'border-b-2 border-[var(--border-color)]' : ''}`;
 
@@ -46,6 +54,7 @@ export function loadStandings(teams = [], simTeams = []) {
                 <td class="px-4 py-2 text-left font-semibold flex items-center">
                     ${getTeamLogo(t.tag, 'w-6 h-6 mr-2')}
                     <span>${t.team_name}</span>
+                    ${zoneBadge}
                     ${tieBadge}
                 </td>
                 <td class="px-2 py-2 font-medium text-emerald-600">${t.match_win}</td>

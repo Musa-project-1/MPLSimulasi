@@ -107,16 +107,28 @@ export function renderRoster(teamId) {
         if (fatigue > 60) fatigueClass = 'fatigue-high';
         else if (fatigue > 30) fatigueClass = 'fatigue-mid';
 
+        const roleNormalized = (p.role || '').toLowerCase();
+        let roleBadgeClass = 'badge-role-mid';
+        if (roleNormalized.includes('exp')) roleBadgeClass = 'badge-role-exp';
+        else if (roleNormalized.includes('jung')) roleBadgeClass = 'badge-role-jungle';
+        else if (roleNormalized.includes('gold')) roleBadgeClass = 'badge-role-gold';
+        else if (roleNormalized.includes('roam')) roleBadgeClass = 'badge-role-roam';
+
+        const mvpCount = p.stats?.mvp || 0;
+
         rosterList.innerHTML += `
-            <div class="flex items-center justify-between p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl hover:border-blue-400 transition group shadow-sm">
+            <div class="flex items-center justify-between p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl hover:border-rose-500/40 transition group shadow-sm">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-slate-400 font-bold text-xs uppercase">
-                        ${p.role.substring(0, 1)}
+                    <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xs uppercase ${roleBadgeClass} shadow-sm">
+                        ${p.role.substring(0, 3)}
                     </div>
                     <div>
-                        <p class="font-bold text-[var(--text-primary)] text-lg leading-none mb-1">${p.nick}</p>
+                        <div class="flex items-center gap-2 mb-1">
+                            <p class="font-bold text-[var(--text-primary)] text-lg leading-none">${p.nick}</p>
+                            ${mvpCount > 0 ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase tracking-tighter flex items-center gap-1"><i class="ph-fill ph-crown text-[10px]"></i> ${mvpCount} MVP</span>` : ''}
+                        </div>
                         <div class="flex items-center gap-2">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${p.role}</p>
+                            <span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${roleBadgeClass}">${p.role}</span>
                             <div class="fatigue-bar" title="Fatigue: ${fatigue}%">
                                 <div class="fatigue-fill ${fatigueClass}" style="width: ${fatigue}%"></div>
                             </div>

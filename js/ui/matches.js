@@ -20,8 +20,8 @@ export function loadMatches(data = []) {
 
         for (let i = 1; i <= maxWeek; i++) {
             const isActive = i === currentViewWeek;
-            const dotColor = isActive ? 'bg-[#9B111E]' : 'bg-slate-800';
-            const textColor = isActive ? 'text-[#9B111E] font-bold' : 'text-slate-500';
+            const dotColor = isActive ? 'bg-rose-600' : 'bg-slate-800';
+            const textColor = isActive ? 'text-rose-500 font-bold' : 'text-slate-500';
 
             timelineHtml += `
                 <div class="flex flex-col items-center cursor-pointer z-10 bg-[var(--bg-main)] px-1 md:px-4 transition-transform hover:-translate-y-1" onclick="changeWeek(${i})">
@@ -103,8 +103,12 @@ export function loadMatches(data = []) {
             const teamA = getTeam(match.team_a_id);
             const teamB = getTeam(match.team_b_id);
 
+            const isCompleted = match.status === 'COMPLETED';
+            const winA = isCompleted && parseInt(match.score_a) > parseInt(match.score_b);
+            const winB = isCompleted && parseInt(match.score_b) > parseInt(match.score_a);
+
             dayColumnHtml += `
-                <div class="border-b border-dashed border-[var(--border-color)] py-6 last:border-0 relative hover:bg-[var(--bg-secondary)] rounded transition-colors group">
+                <div class="border-b border-dashed border-[var(--border-color)] py-6 last:border-0 relative hover:bg-[var(--bg-secondary)] rounded-2xl transition-colors group">
                     <div class="flex justify-between items-center px-4 w-full">
                         
                         <div onclick="openTeamPicker('${match.id}', 'home')" class="flex flex-col items-center w-[30%] relative cursor-pointer group-hover:scale-105 transition-transform" title="Pilih Tim Home">
@@ -114,9 +118,9 @@ export function loadMatches(data = []) {
 
                         <div class="flex flex-col items-center w-[40%] z-10 gap-1">
                             <div class="flex justify-center items-center gap-2">
-                                <span class="text-[2.2rem] font-medium text-[var(--text-primary)] font-oswald">${match.score_a !== "" ? match.score_a : '-'}</span>
-                                <span class="text-2xl font-light text-slate-300">-</span>
-                                <span class="text-[2.2rem] font-medium text-[var(--text-primary)] font-oswald">${match.score_b !== "" ? match.score_b : '-'}</span>
+                                <span class="text-[2.2rem] font-medium font-oswald ${winA ? 'text-emerald-500 font-bold' : 'text-[var(--text-primary)]'}">${match.score_a !== "" ? match.score_a : '-'}</span>
+                                <span class="text-xl font-light text-slate-400">:</span>
+                                <span class="text-[2.2rem] font-medium font-oswald ${winB ? 'text-emerald-500 font-bold' : 'text-[var(--text-primary)]'}">${match.score_b !== "" ? match.score_b : '-'}</span>
                             </div>
                             
                             ${match.status === 'COMPLETED' ? `
@@ -127,10 +131,10 @@ export function loadMatches(data = []) {
                                 </div>
                             ` : `
                                 <div class="flex flex-wrap justify-center gap-1 mt-1">
-                                    <button onclick="quickSetScore('${match.id}', 2, 0)" class="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-secondary)] px-2 py-1 rounded hover:bg-[var(--mpl-red)] hover:text-white transition-all">2-0</button>
-                                    <button onclick="quickSetScore('${match.id}', 2, 1)" class="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-secondary)] px-2 py-1 rounded hover:bg-[var(--mpl-red)] hover:text-white transition-all">2-1</button>
-                                    <button onclick="quickSetScore('${match.id}', 1, 2)" class="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-secondary)] px-2 py-1 rounded hover:bg-[var(--mpl-red)] hover:text-white transition-all">1-2</button>
-                                    <button onclick="quickSetScore('${match.id}', 0, 2)" class="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-secondary)] px-2 py-1 rounded hover:bg-[var(--mpl-red)] hover:text-white transition-all">0-2</button>
+                                    <button onclick="quickSetScore('${match.id}', 2, 0)" class="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-secondary)] px-2 py-1 rounded hover:bg-rose-600 hover:text-white transition-all">2-0</button>
+                                    <button onclick="quickSetScore('${match.id}', 2, 1)" class="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-secondary)] px-2 py-1 rounded hover:bg-rose-600 hover:text-white transition-all">2-1</button>
+                                    <button onclick="quickSetScore('${match.id}', 1, 2)" class="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-secondary)] px-2 py-1 rounded hover:bg-rose-600 hover:text-white transition-all">1-2</button>
+                                    <button onclick="quickSetScore('${match.id}', 0, 2)" class="text-[10px] font-bold text-[var(--text-secondary)] bg-[var(--bg-secondary)] px-2 py-1 rounded hover:bg-rose-600 hover:text-white transition-all">0-2</button>
                                 </div>
                                 <button onclick="openMatchDetailsModal('${match.id}')" class="text-[9px] font-black uppercase tracking-tighter text-blue-600 mt-1 hover:underline transition-all">Detail & MVP</button>
                             `}

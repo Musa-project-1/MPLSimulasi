@@ -91,6 +91,7 @@ window.addEventListener('DOMContentLoaded', () => {
     window.resetTemplateToDefault = Admin.resetTemplateToDefault;
     window.pushScheduleTemplatesToCloud = Admin.pushScheduleTemplatesToCloud;
     window.pullScheduleTemplatesFromCloud = Admin.pullScheduleTemplatesFromCloud;
+    window.promptCreateNewSeason = Admin.promptCreateNewSeason;
 
     // Settings & Supabase
     window.openSettingsModal = openSettingsModal;

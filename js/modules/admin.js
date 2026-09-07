@@ -78,14 +78,48 @@ export function openDatabaseAdmin() {
     const db = getScheduleDatabase();
     const allTeams = Config.getInitialMockTeams();
     const activeKey = window.activeAdminTemplate || 'standard';
-    renderDatabaseAdmin(activeKey, db[activeKey], allTeams);
+    renderDatabaseAdmin(activeKey, db[activeKey] || db['standard'], allTeams, db);
     openModal('modal-database-admin');
 }
 
 export function switchAdminTemplate(key) {
     const db = getScheduleDatabase();
     const allTeams = Config.getInitialMockTeams();
-    renderDatabaseAdmin(key, db[key], allTeams);
+    renderDatabaseAdmin(key, db[key], allTeams, db);
+}
+
+export async function promptCreateNewSeason() {
+    if (typeof window === 'undefined' || !window.prompt) return;
+    const raw = window.prompt("Masukkan nomor musim baru MPL (contoh: 19, 20, 21):", "19");
+    if (!raw) return;
+
+    const seasonNum = parseInt(raw.trim(), 10);
+    if (isNaN(seasonNum) || seasonNum < 1 || seasonNum > 99) {
+        showToast("Nomor musim harus berupa angka antara 1 sampai 99.", "warning");
+        return;
+    }
+
+    const { generateMPLSchedule } = await import('../rules/scheduler.js');
+    const allTeams = Config.getInitialMockTeams();
+    const teamTags = allTeams.map(t => t.tag);
+
+    const newSeason = generateMPLSchedule(teamTags, seasonNum);
+    const db = getScheduleDatabase();
+
+    db[newSeason.key] = newSeason;
+
+    try {
+        localStorage.setItem('mpl_custom_schedule_db', JSON.stringify(db));
+    } catch (_) {}
+
+    window.activeAdminTemplate = newSeason.key;
+    renderDatabaseAdmin(newSeason.key, newSeason, allTeams, db);
+
+    if (isSupabaseConfigured()) {
+        await pushScheduleTemplatesToCloud();
+    }
+
+    showToast(`Jadwal Season ${seasonNum} (72 Match) berhasil dibuat otomatis & disinkronkan ke Cloud!`, "success");
 }
 
 export function addNewMatchupRow() {

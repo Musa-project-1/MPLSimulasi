@@ -18,6 +18,24 @@ import { sanitizeSessionName, validateSessionImport } from '../rules/validators.
 export function openCreateSessionModal() {
     const nameInput = document.getElementById('input-session-name');
     if (nameInput) nameInput.value = '';
+
+    const select = document.getElementById('input-session-schedule');
+    if (select) {
+        try {
+            const rawDb = localStorage.getItem('mpl_custom_schedule_db');
+            if (rawDb) {
+                const db = JSON.parse(rawDb);
+                select.innerHTML = '';
+                Object.keys(db).forEach(k => {
+                    const opt = document.createElement('option');
+                    opt.value = k;
+                    opt.innerText = db[k].name || k;
+                    select.appendChild(opt);
+                });
+            }
+        } catch (_) {}
+    }
+
     openModal('modal-create-session');
 }
 

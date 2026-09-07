@@ -7,21 +7,29 @@ if (typeof window !== 'undefined') {
     window.activeAdminTemplate = activeAdminTemplate;
 }
 
-export function renderDatabaseAdmin(templateKey, templateData = {}, allTeams = []) {
+export function renderDatabaseAdmin(templateKey, templateData = {}, allTeams = [], allTemplates = null) {
     activeAdminTemplate = templateKey;
     if (typeof window !== 'undefined') {
         window.activeAdminTemplate = templateKey;
     }
 
-    // Update active nav button
-    document.querySelectorAll('.admin-nav-btn').forEach(btn => {
-        btn.classList.remove('active', 'bg-slate-800', 'text-white');
-        btn.classList.add('hover:bg-slate-200');
-    });
-    const activeBtn = document.getElementById('admin-nav-' + templateKey);
-    if (activeBtn) {
-        activeBtn.classList.add('active', 'bg-slate-800', 'text-white');
-        activeBtn.classList.remove('hover:bg-slate-200');
+    // Render Dynamic Sidebar Template Navigation
+    const navList = document.getElementById('admin-template-nav-list');
+    if (navList && allTemplates) {
+        navList.innerHTML = '';
+        Object.keys(allTemplates).forEach(k => {
+            const t = allTemplates[k];
+            const isActive = k === templateKey;
+            const btn = document.createElement('button');
+            btn.className = `admin-nav-btn flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-bold text-xs transition-all text-left truncate w-full ${
+                isActive 
+                    ? 'active bg-rose-600 text-white shadow-sm' 
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-input)] hover:text-[var(--text-primary)]'
+            }`;
+            btn.onclick = () => window.switchAdminTemplate(k);
+            btn.innerHTML = `<i class="ph ph-calendar text-base flex-shrink-0"></i><span class="truncate">${t.name || k}</span>`;
+            navList.appendChild(btn);
+        });
     }
 
     const infoEl = document.getElementById('admin-template-info');

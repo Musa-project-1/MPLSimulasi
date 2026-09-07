@@ -9,6 +9,7 @@ import { calculateStandings } from '../rules/standings.js';
 import { getScheduleDatabase } from './admin.js';
 import { isSupabaseConfigured, syncSessionToSupabase } from './supabase.js';
 import { validateBo3Score } from '../rules/validators.js';
+import { playScoreSound } from './sound.js';
 
 let activeDetailMatchId = null;
 

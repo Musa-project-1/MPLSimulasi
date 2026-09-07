@@ -125,4 +125,62 @@ export function updateAdminUIState() {
             `;
         }
     }
+
+    renderAdminSettingsCard();
+}
+
+export function handleChangeAdminPinForm(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const oldPin = document.getElementById('setting-old-admin-pin')?.value || '';
+    const newPin = document.getElementById('setting-new-admin-pin')?.value || '';
+    const confirmPin = document.getElementById('setting-confirm-admin-pin')?.value || '';
+
+    if (newPin !== confirmPin) {
+        showToast("Konfirmasi PIN baru tidak cocok.", "warning");
+        return;
+    }
+
+    const res = setAdminPin(oldPin, newPin);
+    if (res.success) {
+        showToast("PIN Admin berhasil diperbarui!", "success");
+        const f = document.getElementById('form-change-admin-pin');
+        if (f) f.reset();
+    } else {
+        showToast(res.error || "Gagal mengubah PIN.", "error");
+    }
+}
+
+export function renderAdminSettingsCard() {
+    if (typeof document === 'undefined') return;
+    const statusEl = document.getElementById('setting-admin-status-badge');
+    const actionsEl = document.getElementById('setting-admin-actions');
+    const formEl = document.getElementById('form-change-admin-pin-container');
+    const isLoggedIn = isAdminLoggedIn();
+
+    if (statusEl) {
+        statusEl.className = isLoggedIn 
+            ? "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/15 text-rose-500 border border-rose-500/30"
+            : "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-500/10 text-slate-400 border border-[var(--border-color)]";
+        statusEl.innerText = isLoggedIn ? "Mode Admin Aktif" : "Mode Pengunjung (Viewer)";
+    }
+
+    if (actionsEl) {
+        if (isLoggedIn) {
+            actionsEl.innerHTML = `
+                <button type="button" onclick="logoutAdmin();" class="btn-esports px-4 py-2 bg-slate-800 hover:bg-rose-600/20 text-rose-400 border border-rose-500/20 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i class="ph ph-sign-out text-base"></i> Keluar dari Mode Admin
+                </button>
+            `;
+        } else {
+            actionsEl.innerHTML = `
+                <button type="button" onclick="openAdminLoginModal();" class="btn-esports px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i class="ph ph-shield-check text-base"></i> Masuk Mode Admin
+                </button>
+            `;
+        }
+    }
+
+    if (formEl) {
+        formEl.classList.toggle('hidden', !isLoggedIn);
+    }
 }

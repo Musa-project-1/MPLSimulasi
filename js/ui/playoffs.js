@@ -27,7 +27,15 @@ export function renderPlayoffBracket(data) {
                 <div class="bracket-match group relative">
                     <!-- Match Header (ID/Type) -->
                     <div class="absolute -top-6 left-0 right-0 flex justify-between px-2">
-                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">${match.id === 'p7' || match.id === 's3' ? 'GRAND FINAL' : 'MATCH ' + match.id.toUpperCase()}</span>
+                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">${
+                            match.id === 'p8' || match.id === 's3' ? 'GRAND FINAL (BO7)' :
+                            match.id === 'p7' ? 'LOWER FINAL (BO7)' :
+                            match.id === 'p6' ? 'LOWER SEMIS (BO5)' :
+                            match.id === 'p5' ? 'UPPER FINAL (BO5)' :
+                            match.id === 'p3' || match.id === 'p4' ? 'UPPER SEMIS (BO5)' :
+                            match.id === 'p1' || match.id === 'p2' ? 'PLAY-IN (BO5)' :
+                            'MATCH ' + match.id.toUpperCase()
+                        }</span>
                         ${hasResult ? '<span class="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Final Result</span>' : ''}
                     </div>
 

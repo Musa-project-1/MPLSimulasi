@@ -330,3 +330,11 @@ header {
     background: #cbd5e1;
 }
 
+/* H2H Interactive Crosshair Focus */
+.h2h-cell:hover {
+    background-color: rgba(225, 29, 72, 0.15) !important;
+    outline: 1px solid rgba(225, 29, 72, 0.4);
+    border-radius: 6px;
+}
+
+

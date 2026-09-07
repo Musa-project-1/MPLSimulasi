@@ -150,7 +150,7 @@ export function updatePlayoffScore(matchId, slot, value) {
     if (slot === 'A') targetMatch.scoreA = value;
     else targetMatch.scoreB = value;
 
-    const isFinal = matchId === "p7" || matchId === "s3";
+    const isFinal = matchId === "p7" || matchId === "p8" || matchId === "s3";
     const validation = validatePlayoffScore(targetMatch.scoreA, targetMatch.scoreB, isFinal);
 
     if (!validation.valid) {
@@ -158,6 +158,7 @@ export function updatePlayoffScore(matchId, slot, value) {
         targetMatch.winner = null;
     } else if (validation.isComplete) {
         targetMatch.winner = validation.winner === 'A' ? targetMatch.teamA : targetMatch.teamB;
+        const loserTeam = validation.winner === 'A' ? targetMatch.teamB : targetMatch.teamA;
 
         if (targetMatch.nextMatch) {
             let nextM = null;
@@ -169,6 +170,19 @@ export function updatePlayoffScore(matchId, slot, value) {
             if (nextM) {
                 if (targetMatch.slot === "A") nextM.teamA = targetMatch.winner;
                 else nextM.teamB = targetMatch.winner;
+            }
+        }
+
+        if (targetMatch.loserNextMatch) {
+            let nextLM = null;
+            playoffData.rounds.forEach(round => {
+                const m = round.matches.find(x => x.id === targetMatch.loserNextMatch);
+                if (m) nextLM = m;
+            });
+
+            if (nextLM) {
+                if (targetMatch.loserSlot === "A") nextLM.teamA = loserTeam;
+                else nextLM.teamB = loserTeam;
             }
         }
     } else {

@@ -130,8 +130,8 @@ export function renderH2HMatrix() {
 
     teams.forEach(rowTeam => {
         html += `
-            <tr class="hover:bg-[var(--bg-secondary)] transition-colors">
-                <td class="px-3 py-2 text-left font-bold bg-[var(--bg-secondary)] flex items-center gap-2">
+            <tr class="h2h-row hover:bg-slate-500/5 transition-colors" data-team="${rowTeam.tag}">
+                <td class="px-4 py-2.5 font-bold text-xs sticky left-0 bg-[var(--bg-card)] border-r border-[var(--border-color)] flex items-center gap-2">
                     ${getTeamLogo(rowTeam.tag, 'w-5 h-5')}
                     <span>${rowTeam.tag}</span>
                 </td>
@@ -150,7 +150,7 @@ export function renderH2HMatrix() {
             );
 
             if (h2hMatches.length === 0) {
-                html += `<td class="px-2 py-2 text-slate-400 text-center font-mono">-</td>`;
+                html += `<td class="h2h-cell px-2 py-2 text-slate-400 text-center font-mono transition-colors cursor-default" data-row-team="${rowTeam.tag}" data-col-team="${colTeam.tag}" title="${rowTeam.tag} vs ${colTeam.tag}">-</td>`;
                 return;
             }
 
@@ -167,7 +167,7 @@ export function renderH2HMatrix() {
                 return `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border ${colorClass}">${myScore}-${oppScore}</span>`;
             }).join(' ');
 
-            html += `<td class="px-2 py-2 text-center">${badges}</td>`;
+            html += `<td class="h2h-cell px-2 py-2 text-center transition-colors cursor-default" data-row-team="${rowTeam.tag}" data-col-team="${colTeam.tag}" title="${rowTeam.tag} vs ${colTeam.tag}">${badges}</td>`;
         });
 
         html += `</tr>`;

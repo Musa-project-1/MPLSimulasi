@@ -15,6 +15,7 @@ import * as Admin from './modules/admin.js';
 import * as QuickSim from './modules/quick_sim.js';
 import * as QuickImporter from './modules/quick_importer.js';
 import * as AdminAuth from './modules/admin_auth.js';
+import * as Sound from './modules/sound.js';
 import * as Supabase from './modules/supabase.js';
 import { runSimulation } from './simulation/engine.js';
 
@@ -100,6 +101,8 @@ window.addEventListener('DOMContentLoaded', () => {
     window.openAdminLoginModal = AdminAuth.openAdminLoginModal;
     window.submitAdminLogin = AdminAuth.submitAdminLogin;
     window.logoutAdmin = AdminAuth.logoutAdmin;
+    window.handleChangeAdminPinForm = AdminAuth.handleChangeAdminPinForm;
+    window.renderAdminSettingsCard = AdminAuth.renderAdminSettingsCard;
 
     // Settings & Supabase
     window.openSettingsModal = openSettingsModal;
@@ -199,6 +202,11 @@ export function openSettingsModal() {
         }
     }
 
+    const snd = document.getElementById('setting-sound');
+    if (snd) snd.checked = Sound.isSoundEnabled();
+
+    AdminAuth.renderAdminSettingsCard();
+
     UI.openModal('modal-settings');
 }
 
@@ -210,6 +218,9 @@ export function saveSettings() {
         fatigue: document.getElementById('setting-fatigue')?.checked || false,
         rivalry: document.getElementById('setting-rivalry')?.checked || false
     };
+
+    const snd = document.getElementById('setting-sound');
+    if (snd) Sound.setSoundEnabled(snd.checked);
 
     try {
         localStorage.setItem('mpl_settings_' + Store.activeSessionId, JSON.stringify(settings));

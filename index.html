@@ -649,6 +649,21 @@
                                     <input type="checkbox" id="setting-rivalry" class="sr-only peer">
                                     <div class="w-11 h-6 bg-slate-300 dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
                                 </label>
+
+                                <!-- Sound Effects -->
+                                <label class="flex items-center justify-between p-4 bg-[var(--bg-input)] rounded-2xl border border-[var(--border-color)] cursor-pointer hover:border-[var(--text-muted)] transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                                            <i class="ph-fill ph-speaker-high text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <span class="font-bold text-[var(--text-primary)] text-sm block">Sound Effects</span>
+                                            <span class="text-[10px] text-[var(--text-secondary)]">Efek audio sintetis turnamen saat update skor dan simulasi.</span>
+                                        </div>
+                                    </div>
+                                    <input type="checkbox" id="setting-sound" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-slate-300 dark:bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -711,6 +726,41 @@
                                 </button>
                             </div>
                             <p id="supabase-status-text" class="text-[11px] text-[var(--text-secondary)] mt-1 hidden"></p>
+                        </div>
+
+                        <!-- Admin Security & PIN Management -->
+                        <div class="p-6 bg-[var(--bg-secondary)] rounded-3xl border border-[var(--border-color)] space-y-4">
+                            <div class="flex items-center justify-between pb-3 border-b border-[var(--border-color)]">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center border border-rose-500/20">
+                                        <i class="ph-fill ph-shield-check text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-bold text-[var(--text-primary)] text-sm">Keamanan & Hak Akses Admin</h5>
+                                        <p class="text-[11px] text-[var(--text-secondary)]">Kelola PIN master untuk proteksi jadwal dan siaran cloud.</p>
+                                    </div>
+                                </div>
+                                <span id="setting-admin-status-badge" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-500/10 text-slate-400 border border-[var(--border-color)]">Mode Pengunjung (Viewer)</span>
+                            </div>
+
+                            <div id="setting-admin-actions" class="flex flex-wrap gap-2">
+                                <!-- Injected via JS -->
+                            </div>
+
+                            <!-- Change PIN Form (Visible when Logged In) -->
+                            <div id="form-change-admin-pin-container" class="hidden pt-3 border-t border-[var(--border-color)] space-y-3">
+                                <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Perbarui PIN Admin</label>
+                                <form id="form-change-admin-pin" onsubmit="handleChangeAdminPinForm(event)" class="space-y-3">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        <input type="password" id="setting-old-admin-pin" placeholder="PIN Lama" required class="px-4 py-2.5 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl text-xs outline-none focus:border-rose-500 transition">
+                                        <input type="password" id="setting-new-admin-pin" placeholder="PIN Baru (4-20 digit)" required class="px-4 py-2.5 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl text-xs outline-none focus:border-rose-500 transition">
+                                        <input type="password" id="setting-confirm-admin-pin" placeholder="Konfirmasi PIN Baru" required class="px-4 py-2.5 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl text-xs outline-none focus:border-rose-500 transition">
+                                    </div>
+                                    <button type="submit" class="btn-esports px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                        <i class="ph ph-key text-base"></i> Simpan PIN Baru
+                                    </button>
+                                </form>
+                            </div>
                         </div>
 
                         <div class="bg-amber-500/10 border border-amber-500/20 p-6 rounded-3xl flex items-start gap-4">

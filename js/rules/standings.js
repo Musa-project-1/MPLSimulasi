@@ -137,6 +137,36 @@ export function recalculateTeamStatsFromMatches(teams = [], matches = []) {
 }
 
 /**
+ * Calculate team's current win/loss streak from completed matches.
+ */
+export function calculateTeamStreak(teamId, matches = []) {
+    const completed = matches
+        .filter(m => m.status === 'COMPLETED' && (m.team_a_id === teamId || m.team_b_id === teamId))
+        .sort((a, b) => (parseInt(b.week) - parseInt(a.week)) || (parseInt(b.day) - parseInt(a.day)) || b.id.localeCompare(a.id));
+
+    if (completed.length === 0) return { type: 'NONE', count: 0, label: '-' };
+
+    const firstMatch = completed[0];
+    const isFirstWon = (firstMatch.team_a_id === teamId && parseInt(firstMatch.score_a) > parseInt(firstMatch.score_b)) ||
+                       (firstMatch.team_b_id === teamId && parseInt(firstMatch.score_b) > parseInt(firstMatch.score_a));
+
+    const streakType = isFirstWon ? 'W' : 'L';
+    let count = 0;
+
+    for (const m of completed) {
+        const won = (m.team_a_id === teamId && parseInt(m.score_a) > parseInt(m.score_b)) ||
+                    (m.team_b_id === teamId && parseInt(m.score_b) > parseInt(m.score_a));
+        if ((streakType === 'W' && won) || (streakType === 'L' && !won)) {
+            count++;
+        } else {
+            break;
+        }
+    }
+
+    return { type: streakType, count, label: `${count}${streakType}` };
+}
+
+/**
  * Sort teams according to official MPL standings and tie-breaker criteria.
  */
 export function calculateStandings(teams = [], matches = []) {
@@ -147,7 +177,8 @@ export function calculateStandings(teams = [], matches = []) {
         game_win: parseInt(t.game_win) || 0,
         game_lose: parseInt(t.game_lose) || 0,
         points: (parseInt(t.game_win) || 0) - (parseInt(t.game_lose) || 0),
-        match_diff: (parseInt(t.match_win) || 0) - (parseInt(t.match_lose) || 0)
+        match_diff: (parseInt(t.match_win) || 0) - (parseInt(t.match_lose) || 0),
+        streak: calculateTeamStreak(t.id, matches)
     }));
 
     const sorted = list.sort((a, b) => {

@@ -80,4 +80,18 @@ describe('MPL Standings & Tie-Breaker Engine', () => {
         expect(onic.game_lose).toBe(2);
         expect(onic.points).toBe(1);
     });
+
+    it('accurately computes team current win/loss streaks', () => {
+        const matches = [
+            { id: 'm1', week: 1, day: 1, team_a_id: 't1', team_b_id: 't2', score_a: 2, score_b: 0, status: 'COMPLETED' },
+            { id: 'm2', week: 1, day: 2, team_a_id: 't1', team_b_id: 't3', score_a: 2, score_b: 1, status: 'COMPLETED' },
+            { id: 'm3', week: 2, day: 1, team_a_id: 't1', team_b_id: 't4', score_a: 2, score_b: 0, status: 'COMPLETED' }
+        ];
+
+        const standings = calculateStandings(mockTeams, matches);
+        const rrq = standings.find(t => t.id === 't1');
+        expect(rrq.streak.type).toBe('W');
+        expect(rrq.streak.count).toBe(3);
+        expect(rrq.streak.label).toBe('3W');
+    });
 });

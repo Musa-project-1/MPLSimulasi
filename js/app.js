@@ -23,6 +23,7 @@ window.addEventListener('DOMContentLoaded', () => {
     UI.renderSessionManager();
     Theme.applySavedTheme();
     registerServiceWorker();
+    Sessions.syncSessionsFromCloud().catch(err => console.warn('Cloud sync error:', err));
 
     // Attach modules to window for inline HTML template compatibility
     // Sessions

@@ -2,7 +2,7 @@
  * MPLSim Service Worker - Offline First Architecture
  */
 
-const CACHE_NAME = 'mplsim-cache-v2';
+const CACHE_NAME = 'mplsim-cache-v3';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -20,9 +20,11 @@ const STATIC_ASSETS = [
     './js/modules/admin.js',
     './js/modules/export.js',
     './js/modules/playoffs.js',
+    './js/modules/quick_sim.js',
     './js/modules/roster.js',
     './js/modules/schedule.js',
     './js/modules/sessions.js',
+    './js/modules/supabase.js',
     './js/modules/theme.js',
     './js/ui/admin.js',
     './js/ui/core.js',

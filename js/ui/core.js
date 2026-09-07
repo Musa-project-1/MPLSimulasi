@@ -276,7 +276,10 @@ export function renderSessionManager() {
                         <i class="ph-fill ph-game-controller text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-white text-lg tracking-wide">${session.name}</h3>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-white text-lg tracking-wide">${session.name}</h3>
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[8px] font-bold border border-emerald-500/20 inline-flex items-center gap-1"><i class="ph-fill ph-cloud"></i> Cloud</span>
+                        </div>
                         <p class="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5"><i class="ph ph-clock mr-1"></i>Last active: ${dateStr}</p>
                     </div>
                 </div>

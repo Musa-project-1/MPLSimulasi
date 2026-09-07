@@ -6,7 +6,13 @@
 import * as Store from '../store.js';
 import { openModal, closeModal, customAlert, renderSessionManager } from '../ui/core.js';
 import { initializeMockDataForSession } from './schedule.js';
-import { isSupabaseConfigured, syncSessionToSupabase, deleteSessionFromSupabase } from './supabase.js';
+import { 
+    isSupabaseConfigured, 
+    syncSessionToSupabase, 
+    deleteSessionFromSupabase,
+    fetchSessionsFromSupabase,
+    fetchSessionDataFromSupabase
+} from './supabase.js';
 
 export function openCreateSessionModal() {
     const nameInput = document.getElementById('input-session-name');
@@ -43,7 +49,7 @@ export function submitCreateSession(e) {
     enterApp();
 }
 
-export function openSession(id) {
+export async function openSession(id) {
     const sessions = Store.loadSessionsList();
     const sess = sessions.find(s => s.id === id);
     if (!sess) return;
@@ -53,7 +59,49 @@ export function openSession(id) {
 
     Store.setActiveSessionId(sess.id);
     Store.setActiveSessionName(sess.name);
+
+    // If session data is not yet in local storage, fetch from Supabase
+    let localTeams = Store.getSessionTeams(sess.id);
+    if ((!localTeams || localTeams.length === 0) && isSupabaseConfigured()) {
+        const cloudData = await fetchSessionDataFromSupabase(sess.id);
+        if (cloudData && cloudData.teams && cloudData.teams.length > 0) {
+            Store.saveSessionData(cloudData.teams, cloudData.matches || [], sess.id);
+            if (cloudData.settings) {
+                try { localStorage.setItem('mpl_settings_' + sess.id, JSON.stringify(cloudData.settings)); } catch (_) {}
+            }
+            if (cloudData.playoffs && cloudData.playoffs.bracket_data) {
+                try { localStorage.setItem('mpl_playoffs_' + sess.id, JSON.stringify(cloudData.playoffs.bracket_data)); } catch (_) {}
+            }
+        }
+    }
+
     enterApp();
+}
+
+export async function syncSessionsFromCloud() {
+    if (!isSupabaseConfigured()) return;
+    try {
+        const cloudSessions = await fetchSessionsFromSupabase();
+        if (!cloudSessions || !Array.isArray(cloudSessions)) return;
+
+        const localSessions = Store.loadSessionsList();
+        let changed = false;
+
+        cloudSessions.forEach(cs => {
+            const exists = localSessions.find(ls => ls.id === cs.id);
+            if (!exists) {
+                localSessions.push(cs);
+                changed = true;
+            }
+        });
+
+        if (changed) {
+            Store.saveSessionsList();
+            renderSessionManager();
+        }
+    } catch (err) {
+        console.warn('Cloud sessions auto-sync:', err);
+    }
 }
 
 export function deleteSession(id) {

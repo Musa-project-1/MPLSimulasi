@@ -32,6 +32,15 @@ export function loadStandings(teams = [], simTeams = []) {
                 ? `<span class="ml-2 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[9px] font-mono font-bold border border-amber-500/20 tracking-tighter" title="Kriteria Tie-Breaker: ${t.tieBreakerNote}">TB</span>`
                 : '';
 
+            let streakBadge = '<span class="text-slate-400 font-mono text-xs">-</span>';
+            if (t.streak && t.streak.count > 0) {
+                if (t.streak.type === 'W') {
+                    streakBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 tracking-tighter">${t.streak.label}</span>`;
+                } else if (t.streak.type === 'L') {
+                    streakBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500/10 text-rose-500 border border-rose-500/20 tracking-tighter">${t.streak.label}</span>`;
+                }
+            }
+
             tr.innerHTML = `
                 <td class="px-3 py-2 font-medium">${index + 1}</td>
                 <td class="px-4 py-2 text-left font-semibold flex items-center">
@@ -46,6 +55,7 @@ export function loadStandings(teams = [], simTeams = []) {
                 <td class="px-2 py-2">${t.game_lose}</td>
                 <td class="px-3 py-2">${wrGame}</td>
                 <td class="px-4 py-2 font-bold text-base bg-[var(--bg-secondary)]">${t.points}</td>
+                <td class="px-3 py-2">${streakBadge}</td>
                 <td class="px-3 py-2 text-slate-500">${sisa}</td>
             `;
             tbodyStanding.appendChild(tr);

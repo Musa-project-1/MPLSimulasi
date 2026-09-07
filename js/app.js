@@ -22,7 +22,7 @@ window.addEventListener('DOMContentLoaded', () => {
     Store.loadSessionsList();
     UI.renderSessionManager();
     Theme.applySavedTheme();
-    registerServiceWorker();
+    cleanupServiceWorkers();
     Sessions.syncSessionsFromCloud().catch(err => console.warn('Cloud sync error:', err));
 
     // Attach modules to window for inline HTML template compatibility
@@ -266,17 +266,16 @@ export async function handleSyncCurrentSessionToCloud() {
     }
 }
 
-// --- PWA & SERVICE WORKER ---
-function registerServiceWorker() {
+// --- PWA CLEANUP ---
+function cleanupServiceWorkers() {
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => {
-                    console.log('MPLSim ServiceWorker registered with scope:', reg.scope);
-                })
-                .catch(err => {
-                    console.log('MPLSim ServiceWorker registration failed:', err);
-                });
-        });
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            for (const reg of regs) {
+                reg.unregister();
+            }
+        }).catch(() => {});
+        if (typeof caches !== 'undefined') {
+            caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+        }
     }
 }

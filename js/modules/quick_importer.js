@@ -113,6 +113,11 @@ export function parseMatchText(rawText) {
             return;
         }
 
+        // Check Indonesian day names
+        if (/^jumat\b/i.test(trimmed)) { currentDay = 1; return; }
+        if (/^sabtu\b/i.test(trimmed)) { currentDay = 2; return; }
+        if (/^minggu\b/i.test(trimmed) && !/^minggu\s*\d/i.test(trimmed)) { currentDay = 3; return; }
+
         // Try matching score line: Team A [scoreA - scoreB] Team B
         // e.g. "EVOS 2-0 RRQ" or "BTR 2 - 1 GEEK"
         const matchScores = trimmed.match(/([A-Za-z\s]+?)\s+(\d)\s*[-:]\s*(\d)\s+([A-Za-z\s]+)/);
@@ -220,6 +225,19 @@ export async function applyBatchMatches(parsedMatches, sessionId = Store.activeS
         // Broadcast to Supabase Cloud if configured
         if (isSupabaseConfigured() && sessionId) {
             await syncSessionToSupabase(sessionId).catch(e => console.warn("Cloud sync failed:", e));
+
+            // Also broadcast official live matches snapshot for other users
+            const { supabaseRequest } = await import('./supabase.js');
+            await supabaseRequest('schedule_templates', 'POST', [{
+                id: 'official_live_matches',
+                templates_data: {
+                    sessionId,
+                    matches,
+                    teams: recomputedTeams,
+                    updated_at: new Date().toISOString()
+                },
+                updated_at: new Date().toISOString()
+            }], 'resolution=merge-duplicates').catch(e => console.warn("Live broadcast failed:", e));
         }
 
         showToast(`Berhasil memperbarui ${updatedCount} pertandingan & disinkronkan ke Cloud!`, "success");
@@ -232,6 +250,74 @@ export async function applyBatchMatches(parsedMatches, sessionId = Store.activeS
     } catch (err) {
         console.error("Apply batch matches error:", err);
         showToast("Gagal menerapkan pertandingan: " + err.message, "error");
+        return false;
+    } finally {
+        showLoading(false);
+    }
+}
+
+/**
+ * Syncs the latest official live match scores published by the admin from Supabase Cloud.
+ */
+export async function syncLiveScoresFromCloud(sessionId = Store.activeSessionId) {
+    if (!isSupabaseConfigured()) {
+        showToast("Supabase Cloud belum terhubung.", "warning");
+        return false;
+    }
+
+    showLoading(true);
+    try {
+        const { supabaseRequest } = await import('./supabase.js');
+        const rows = await supabaseRequest('schedule_templates?id=eq.official_live_matches&limit=1', 'GET');
+        if (!rows || !rows[0] || !rows[0].templates_data) {
+            showToast("Belum ada skor resmi terbaru yang dibroadcast di Cloud.", "info");
+            return false;
+        }
+
+        const cloudData = rows[0].templates_data;
+        const localMatches = Store.getSessionMatches(sessionId);
+        const localTeams = Store.getSessionTeams(sessionId);
+
+        if (!localMatches || localMatches.length === 0) {
+            showToast("Sesi aktif belum memiliki pertandingan.", "warning");
+            return false;
+        }
+
+        let updatedCount = 0;
+        (cloudData.matches || []).forEach(cm => {
+            if (cm.status === 'COMPLETED') {
+                const lm = localMatches.find(m => 
+                    parseInt(m.week, 10) === parseInt(cm.week, 10) &&
+                    ((m.team_a_id === cm.team_a_id && m.team_b_id === cm.team_b_id) ||
+                     (m.team_a_id === cm.team_b_id && m.team_b_id === cm.team_a_id))
+                );
+                if (lm && lm.status !== 'COMPLETED') {
+                    lm.score_a = cm.score_a;
+                    lm.score_b = cm.score_b;
+                    lm.status = 'COMPLETED';
+                    lm.games = cm.games || [];
+                    updatedCount++;
+                }
+            }
+        });
+
+        const { recalculateTeamStatsFromMatches } = await import('../rules/standings.js');
+        const recomputedTeams = recalculateTeamStatsFromMatches(localTeams, localMatches);
+
+        Store.saveSessionData(recomputedTeams, localMatches, sessionId);
+        Store.setGlobalTeams(recomputedTeams);
+        Store.setGlobalMatches(localMatches);
+
+        showToast(`Berhasil menyinkronkan ${updatedCount} skor resmi terbaru dari Cloud!`, "success");
+
+        if (window.loadMatches) window.loadMatches();
+        if (window.loadStandings) window.loadStandings();
+        if (window.loadDashboard) window.loadDashboard();
+
+        return true;
+    } catch (err) {
+        console.error("Sync live scores error:", err);
+        showToast("Gagal sync skor dari Cloud: " + err.message, "error");
         return false;
     } finally {
         showLoading(false);

@@ -71,6 +71,7 @@ window.addEventListener('DOMContentLoaded', () => {
     window.loadOfficialS18Preset = loadOfficialS18Preset;
     window.handlePreviewParsedMatches = handlePreviewParsedMatches;
     window.handleExecuteBatchImport = handleExecuteBatchImport;
+    window.syncLiveScoresFromCloud = QuickImporter.syncLiveScoresFromCloud;
 
     // Playoffs
     window.loadPlayoffs = Playoffs.loadPlayoffs;

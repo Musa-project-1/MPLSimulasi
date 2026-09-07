@@ -88,6 +88,11 @@
                         <li><a href="#" onclick="switchTab('matches', this)" id="nav-matches" class="px-4 py-2 text-slate-600 hover:text-[var(--mpl-red)] transition-all font-bold text-[11px] uppercase tracking-wide">Jadwal</a></li>
                         <li><a href="#" onclick="switchTab('teams', this)" id="nav-teams" class="px-4 py-2 text-slate-600 hover:text-[var(--mpl-red)] transition-all font-bold text-[11px] uppercase tracking-wide">Teams</a></li>
                         <li><a href="#" onclick="openSettingsModal()" class="px-3 py-2 text-slate-400 hover:text-slate-900 transition-all font-bold text-[11px] uppercase tracking-wide" title="Settings"><i class="ph ph-gear text-lg"></i></a></li>
+                        <li id="header-admin-badge-container">
+                            <button onclick="openAdminLoginModal()" class="p-2 text-slate-400 hover:text-slate-900 transition-colors" title="Login Portal Admin">
+                                <i class="ph ph-shield-lock text-xl"></i>
+                            </button>
+                        </li>
                     </ul>
                 </nav>
 
@@ -919,6 +924,26 @@
                     <i class="ph ph-check-circle text-lg"></i> Terapkan & Broadcast ke Cloud
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal Admin Portal Authentication -->
+    <div id="modal-admin-login" class="fixed inset-0 bg-slate-900/80 z-[300] flex items-center justify-center hidden opacity-0 transition-opacity backdrop-blur-sm">
+        <div class="bg-[var(--bg-card)] rounded-3xl p-8 w-full max-w-sm shadow-2xl transform scale-95 transition-transform border border-[var(--border-color)] text-center" id="modal-admin-login-content">
+            <div class="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-4 border border-rose-500/20 shadow-inner">
+                <i class="ph-fill ph-shield-lock text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-bold font-oswald tracking-wide uppercase text-[var(--text-primary)] mb-1">Admin Portal</h3>
+            <p class="text-xs text-[var(--text-secondary)] mb-6">Masukkan PIN Master Admin untuk mengakses kontrol jadwal dan penyiaran cloud.</p>
+
+            <form onsubmit="submitAdminLogin(event)" class="space-y-4">
+                <input type="password" id="input-admin-pin" required class="w-full px-4 py-3 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-xl outline-none focus:border-rose-500 text-center text-lg tracking-widest transition" placeholder="PIN Admin (default: mpl2026)">
+                <p id="admin-login-error" class="hidden text-xs text-rose-500 font-bold"></p>
+                <div class="flex gap-2.5 pt-2">
+                    <button type="button" onclick="closeModal('modal-admin-login')" class="w-1/2 py-2.5 text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-xl transition">Batal</button>
+                    <button type="submit" class="btn-esports w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-rose-600/20 transition">Masuk Admin</button>
+                </div>
+            </form>
         </div>
     </div>
 

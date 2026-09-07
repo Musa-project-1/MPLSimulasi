@@ -14,6 +14,7 @@ import * as Export from './modules/export.js';
 import * as Admin from './modules/admin.js';
 import * as QuickSim from './modules/quick_sim.js';
 import * as QuickImporter from './modules/quick_importer.js';
+import * as AdminAuth from './modules/admin_auth.js';
 import * as Supabase from './modules/supabase.js';
 import { runSimulation } from './simulation/engine.js';
 
@@ -24,6 +25,7 @@ window.addEventListener('DOMContentLoaded', () => {
     UI.renderSessionManager();
     Theme.applySavedTheme();
     cleanupServiceWorkers();
+    AdminAuth.updateAdminUIState();
     Sessions.syncSessionsFromCloud().catch(err => console.warn('Cloud sync error:', err));
     Admin.syncScheduleTemplatesFromCloud().catch(err => console.warn('Cloud schedule sync error:', err));
 
@@ -93,6 +95,11 @@ window.addEventListener('DOMContentLoaded', () => {
     window.pushScheduleTemplatesToCloud = Admin.pushScheduleTemplatesToCloud;
     window.pullScheduleTemplatesFromCloud = Admin.pullScheduleTemplatesFromCloud;
     window.promptCreateNewSeason = Admin.promptCreateNewSeason;
+
+    // Admin Auth
+    window.openAdminLoginModal = AdminAuth.openAdminLoginModal;
+    window.submitAdminLogin = AdminAuth.submitAdminLogin;
+    window.logoutAdmin = AdminAuth.logoutAdmin;
 
     // Settings & Supabase
     window.openSettingsModal = openSettingsModal;
@@ -282,6 +289,12 @@ export async function handleSyncCurrentSessionToCloud() {
 let cachedParsedMatches = [];
 
 export function openQuickImportModal() {
+    if (!AdminAuth.isAdminLoggedIn()) {
+        UI.showToast("Akses dibatasi. Silakan login sebagai Admin terlebih dahulu.", "warning");
+        AdminAuth.openAdminLoginModal();
+        return;
+    }
+
     cachedParsedMatches = [];
     const txt = document.getElementById('quick-import-textarea');
     if (txt) txt.value = '';

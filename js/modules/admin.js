@@ -7,6 +7,7 @@ import * as Config from '../config.js';
 import { openModal, closeModal, customAlert, showToast, showLoading } from '../ui/core.js';
 import { renderDatabaseAdmin, addEmptyMatchupRow } from '../ui/admin.js';
 import { isSupabaseConfigured, supabaseRequest } from './supabase.js';
+import { isAdminLoggedIn, openAdminLoginModal } from './admin_auth.js';
 
 export function getScheduleDatabase() {
     try {
@@ -75,6 +76,13 @@ export async function pullScheduleTemplatesFromCloud() {
 
 export function openDatabaseAdmin() {
     closeModal('modal-settings');
+
+    if (!isAdminLoggedIn()) {
+        showToast("Akses dibatasi. Silakan login sebagai Admin terlebih dahulu.", "warning");
+        openAdminLoginModal();
+        return;
+    }
+
     const db = getScheduleDatabase();
     const allTeams = Config.getInitialMockTeams();
     const activeKey = window.activeAdminTemplate || 'standard';

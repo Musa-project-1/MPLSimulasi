@@ -57,11 +57,20 @@ export async function loadPlayoffs() {
                     <p class="text-[10px] text-amber-600 font-medium">Tim dipilih berdasarkan klasemen sementara. Reset jika ingin update otomatis.</p>
                 </div>
             </div>
-            <button onclick="localStorage.removeItem('mpl_force_playoff_' + '${Store.activeSessionId}'); localStorage.removeItem('mpl_playoffs_' + '${Store.activeSessionId}'); loadPlayoffs();" 
+            <button onclick="resetPlayoffDraft()" 
                 class="px-4 py-2 bg-white border border-amber-200 text-amber-700 text-[10px] font-black rounded-lg hover:bg-amber-100 transition-colors uppercase">Reset Playoff</button>
         `;
         bracketContainer.prepend(banner);
     }
+}
+
+export function resetPlayoffDraft() {
+    if (!Store.activeSessionId) return;
+    try {
+        localStorage.removeItem('mpl_force_playoff_' + Store.activeSessionId);
+        localStorage.removeItem('mpl_playoffs_' + Store.activeSessionId);
+    } catch (_) {}
+    loadPlayoffs();
 }
 
 export function forceUnlockPlayoffs() {

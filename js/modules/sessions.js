@@ -135,6 +135,8 @@ export function executeDeleteSession() {
     const id = document.getElementById('delete-session-id')?.value;
     if (!id) return;
 
+    const isCurrentActive = Store.activeSessionId === id;
+
     let sessions = Store.loadSessionsList();
     sessions = sessions.filter(s => s.id !== id);
     Store.setSessionsList(sessions);
@@ -153,7 +155,12 @@ export function executeDeleteSession() {
     }
 
     closeModal('modal-confirm-delete');
-    renderSessionManager();
+
+    if (isCurrentActive) {
+        exitToSessionManager();
+    } else {
+        renderSessionManager();
+    }
 }
 
 export function exitToSessionManager() {

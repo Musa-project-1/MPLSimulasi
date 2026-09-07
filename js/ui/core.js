@@ -303,3 +303,14 @@ export function renderSessionManager() {
         listEl.innerHTML += html;
     });
 }
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const openModals = document.querySelectorAll('[id^="modal-"]:not(.hidden)');
+            openModals.forEach(m => {
+                if (m.id) closeModal(m.id);
+            });
+        }
+    });
+}

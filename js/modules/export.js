@@ -34,6 +34,70 @@ export async function exportStandingsImage() {
     }
 }
 
+function sanitizeCSVCell(val) {
+    if (val == null) return '';
+    let str = String(val).trim();
+    // Neutralize formula injection in Excel/Sheets (=, +, -, @, \t, \r)
+    if (/^[=+\-@\t\r]/.test(str)) {
+        str = "'" + str;
+    }
+    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        str = `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+}
+
+export async function exportStandingsCSV() {
+    showLoading(true);
+    try {
+        const teams = await fetchAPI('get_standings');
+        if (!teams || teams.length === 0) {
+            customAlert("Tidak ada data klasemen untuk diekspor.");
+            return;
+        }
+
+        const headers = ["Rank", "Team Name", "Tag", "Match W", "Match L", "Match WR", "Game W", "Game L", "Game WR", "Points", "Streak"];
+        const rows = [headers.join(',')];
+
+        teams.forEach((t, idx) => {
+            const wrMatch = t.match_played > 0 ? Math.round((t.match_win / t.match_played) * 100) + '%' : '0%';
+            const totalGames = (parseInt(t.game_win) || 0) + (parseInt(t.game_lose) || 0);
+            const wrGame = totalGames > 0 ? Math.round(((parseInt(t.game_win) || 0) / totalGames) * 100) + '%' : '0%';
+            const streakLabel = t.streak?.label || '-';
+
+            const row = [
+                sanitizeCSVCell(idx + 1),
+                sanitizeCSVCell(t.team_name),
+                sanitizeCSVCell(t.tag),
+                sanitizeCSVCell(t.match_win),
+                sanitizeCSVCell(t.match_lose),
+                sanitizeCSVCell(wrMatch),
+                sanitizeCSVCell(t.game_win),
+                sanitizeCSVCell(t.game_lose),
+                sanitizeCSVCell(wrGame),
+                sanitizeCSVCell(t.points),
+                sanitizeCSVCell(streakLabel)
+            ];
+            rows.push(row.join(','));
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(rows.join('\n'));
+        const a = document.createElement('a');
+        a.href = csvContent;
+        const sessionName = (Store.activeSessionName || 'MPL').replace(/\s+/g, '_');
+        const dateStr = new Date().toISOString().split('T')[0];
+        a.download = `MPL_Standings_${sessionName}_${dateStr}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    } catch (e) {
+        console.error(e);
+        customAlert("Gagal mengekspor data CSV.");
+    } finally {
+        showLoading(false);
+    }
+}
+
 export async function exportSeasonReport() {
     if (!window.jspdf || !window.jspdf.jsPDF) {
         customAlert("Library jsPDF tidak tersedia.");
@@ -50,7 +114,7 @@ export async function exportSeasonReport() {
         const sessionName = Store.activeSessionName || 'MPL Season';
 
         // Header
-        doc.setFillColor(155, 17, 30);
+        doc.setFillColor(225, 29, 72);
         doc.rect(0, 0, 210, 40, 'F');
 
         doc.setTextColor(255, 255, 255);

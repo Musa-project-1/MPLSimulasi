@@ -8,6 +8,7 @@ import * as Store from '../store.js';
 import { showToast, showLoading, customAlert } from '../ui/core.js';
 import { isSupabaseConfigured, syncSessionToSupabase } from './supabase.js';
 import { validateBo3Score } from '../rules/validators.js';
+import { getMasterTeams } from './teams_db.js';
 
 // Official Schedule & Results Data for MPL ID Season 18 (Week 1 to Week 4)
 export const OFFICIAL_S18_WEEK_1_TO_4_TEXT = `
@@ -72,6 +73,25 @@ const TAG_ALIASES = {
 export function normalizeTeamTag(input) {
     if (!input) return null;
     const clean = input.toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim();
+
+    // 1. Dynamic Check against Database Master Teams
+    try {
+        const master = getMasterTeams();
+        if (Array.isArray(master)) {
+            for (const t of master) {
+                const tag = (t.tag || '').toUpperCase();
+                const name = (t.team_name || '').toUpperCase();
+                if (clean === tag || clean === name) return tag;
+            }
+            for (const t of master) {
+                const tag = (t.tag || '').toUpperCase();
+                const name = (t.team_name || '').toUpperCase();
+                if (clean.includes(tag) || (name && clean.includes(name))) return tag;
+            }
+        }
+    } catch (_) {}
+
+    // 2. Known Static Aliases
     if (TAG_ALIASES[clean]) return TAG_ALIASES[clean];
 
     for (const key in TAG_ALIASES) {

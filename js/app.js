@@ -82,10 +82,12 @@ window.addEventListener('DOMContentLoaded', () => {
     // Playoffs
     window.loadPlayoffs = Playoffs.loadPlayoffs;
     window.forceUnlockPlayoffs = Playoffs.forceUnlockPlayoffs;
+    window.resetPlayoffDraft = Playoffs.resetPlayoffDraft;
     window.updatePlayoffScore = Playoffs.updatePlayoffScore;
 
     // Export & Sharing
     window.exportStandingsImage = Export.exportStandingsImage;
+    window.exportStandingsCSV = Export.exportStandingsCSV;
     window.exportSeasonReport = Export.exportSeasonReport;
     window.shareMatchResult = Export.shareMatchResult;
 

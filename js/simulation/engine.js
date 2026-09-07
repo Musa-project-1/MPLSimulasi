@@ -4,6 +4,7 @@
  */
 
 import { activeSessionId, getSessionMatches } from '../store.js';
+import { calculateStandings } from '../rules/standings.js';
 
 export const DEFAULT_RIVALRIES = [
     { teams: ["RRQ", "EVOS"], intensity: 1.2 },
@@ -26,6 +27,20 @@ export function simulateMonteCarlo(teams = [], allMatches = [], settings = {}, i
 
     const scheduledMatches = allMatches.filter(m => m.status === 'SCHEDULED');
     const completedMatches = allMatches.filter(m => m.status === 'COMPLETED');
+
+    // Instant short-circuit when all matches are completed (deterministic 100% / 0% outcome)
+    if (scheduledMatches.length === 0 && teams.length > 0) {
+        const finalStandings = calculateStandings(teams, allMatches);
+        return finalStandings.map((t, idx) => ({
+            id: t.id,
+            tag: t.tag,
+            team_name: t.team_name,
+            prob_upper: idx < 2 ? "100.00%" : "0.00%",
+            prob_playin: (idx >= 2 && idx < 6) ? "100.00%" : "0.00%",
+            prob_playoff: idx < 6 ? "100.00%" : "0.00%",
+            prob_elim: idx >= 6 ? "100.00%" : "0.00%"
+        }));
+    }
 
     const teamBaseStats = {};
     const h2hCache = {};

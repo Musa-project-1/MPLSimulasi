@@ -1,26 +1,28 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import * as Store from '../js/store.js';
 import { 
     getSupabaseConfig, 
     saveSupabaseConfig, 
     isSupabaseConfigured,
-    testSupabaseConnection 
+    testSupabaseConnection,
+    DEFAULT_SUPABASE_CONFIG
 } from '../js/modules/supabase.js';
 
 describe('Supabase Cloud REST Integration', () => {
     beforeEach(() => {
-        saveSupabaseConfig('', '');
+        Store.safeStorage.removeItem('mpl_supabase_url');
+        Store.safeStorage.removeItem('mpl_supabase_key');
     });
 
-    it('identifies unconfigured state when credentials are empty', () => {
-        expect(isSupabaseConfigured()).toBe(false);
+    it('uses valid default cloud credentials when not overridden', () => {
         const config = getSupabaseConfig();
-        expect(config.url).toBe('');
-        expect(config.key).toBe('');
+        expect(config.url).toBe(DEFAULT_SUPABASE_CONFIG.url);
+        expect(isSupabaseConfigured()).toBe(true);
     });
 
-    it('properly saves and validates configured state', () => {
-        const testUrl = 'https://mplsim-demo.supabase.co';
-        const testKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test-anon-key';
+    it('properly overrides and saves custom cloud credentials', () => {
+        const testUrl = 'https://custom-demo.supabase.co';
+        const testKey = 'custom-test-key-12345';
 
         saveSupabaseConfig(testUrl, testKey);
         expect(isSupabaseConfigured()).toBe(true);
@@ -30,9 +32,18 @@ describe('Supabase Cloud REST Integration', () => {
         expect(config.key).toBe(testKey);
     });
 
-    it('returns clean error message when testing unconfigured credentials', async () => {
+    it('identifies unconfigured state when custom credentials are set to empty', () => {
+        saveSupabaseConfig('', '');
+        expect(isSupabaseConfigured()).toBe(false);
+        const config = getSupabaseConfig();
+        expect(config.url).toBe('');
+        expect(config.key).toBe('');
+    });
+
+    it('successfully connects to the live Supabase project', async () => {
+        // Test connection against configured live project
         const result = await testSupabaseConnection();
-        expect(result.success).toBe(false);
-        expect(result.message).toContain('belum diisi');
+        expect(result.success).toBe(true);
+        expect(result.message).toContain('berhasil');
     });
 });

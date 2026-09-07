@@ -17,7 +17,7 @@ export const safeStorage = {
                 return localStorage.getItem(k);
             }
         } catch (_) {}
-        return memStorage.get(k) || null;
+        return memStorage.has(k) ? memStorage.get(k) : null;
     },
     setItem: (k, v) => {
         try {

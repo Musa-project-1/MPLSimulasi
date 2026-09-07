@@ -6,9 +6,17 @@
 import * as Store from '../store.js';
 import { showToast } from '../ui/core.js';
 
+export const DEFAULT_SUPABASE_CONFIG = {
+    url: 'https://qoykklpeitycbrbzmkcg.supabase.co',
+    key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveWtrbHBlaXR5Y2JyYnpta2NnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3OTA3NTUsImV4cCI6MjEwNDM2Njc1NX0._hBFXlNwdBqnbD_-z1gt4YAgm4lh2OGmkZjf5snKJbY"
+};
+
 export function getSupabaseConfig() {
-    const url = (Store.safeStorage.getItem('mpl_supabase_url') || '').trim();
-    const key = (Store.safeStorage.getItem('mpl_supabase_key') || '').trim();
+    const customUrl = Store.safeStorage.getItem('mpl_supabase_url');
+    const customKey = Store.safeStorage.getItem('mpl_supabase_key');
+
+    const url = (customUrl !== null ? customUrl : DEFAULT_SUPABASE_CONFIG.url || '').trim();
+    const key = (customKey !== null ? customKey : DEFAULT_SUPABASE_CONFIG.key || '').trim();
     return { url, key };
 }
 

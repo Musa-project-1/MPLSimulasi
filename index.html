@@ -818,9 +818,12 @@
                         <div id="admin-template-info" class="text-sm font-bold text-[var(--text-primary)] uppercase tracking-tight">
                             -
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="resetTemplateToDefault()" class="px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/10 rounded-lg transition">Reset ke Default</button>
-                            <button onclick="addNewMatchupRow()" class="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg text-xs font-black hover:bg-emerald-500/20 transition uppercase">+ Tambah Match</button>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="pullScheduleTemplatesFromCloud()" class="px-3 py-2 text-xs font-bold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-lg transition flex items-center gap-1" title="Tarik jadwal terbaru dari cloud">
+                                <i class="ph ph-cloud-arrow-down"></i> Tarik Cloud
+                            </button>
+                            <button onclick="resetTemplateToDefault()" class="px-3 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/10 rounded-lg transition">Reset</button>
+                            <button onclick="addNewMatchupRow()" class="px-3 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-lg text-xs font-black hover:bg-emerald-500/20 transition uppercase">+ Tambah Match</button>
                         </div>
                     </div>
 
@@ -837,7 +840,7 @@
             <div class="p-6 border-t border-[var(--border-color)] flex justify-end gap-3 bg-[var(--bg-secondary)]">
                 <button onclick="closeModal('modal-database-admin')" class="px-8 py-3 text-[var(--text-secondary)] font-bold hover:bg-[var(--bg-input)] rounded-xl transition">Batal</button>
                 <button onclick="saveScheduleDatabase()" class="btn-esports px-10 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg flex items-center gap-2">
-                    <i class="ph ph-floppy-disk text-xl"></i> Simpan Database
+                    <i class="ph ph-cloud-arrow-up text-xl"></i> Simpan & Broadcast ke Cloud
                 </button>
             </div>
         </div>

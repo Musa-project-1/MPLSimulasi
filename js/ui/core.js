@@ -54,6 +54,7 @@ export function getTeamLogo(tag, customClasses = '') {
  * Lightweight Toast Notification (non-intrusive alert replacement)
  */
 export function showToast(message, type = 'info') {
+    if (typeof document === 'undefined') return;
     let container = document.getElementById('toast-container');
     if (!container) {
         container = document.createElement('div');
@@ -99,6 +100,7 @@ export function showToast(message, type = 'info') {
 }
 
 export function showLoading(show) {
+    if (typeof document === 'undefined') return;
     const overlay = document.getElementById('loading-overlay');
     if (overlay) overlay.classList.toggle('hidden', !show);
 }

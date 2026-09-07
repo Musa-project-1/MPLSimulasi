@@ -26,7 +26,7 @@ export const RIVALRIES = [
 
 export const SCHEDULE_TEMPLATES = {
     "standard": {
-        name: "Standard MPL (9 Weeks, 72 Matches)",
+        name: "Standard MPL ID Season 18 (9 Weeks, 72 Matches)",
         weeks: 9,
         daysPerWeek: [
             { day: 1, name: 'Hari 1 (Jumat)', count: 2 },

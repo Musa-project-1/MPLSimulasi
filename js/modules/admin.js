@@ -1,10 +1,12 @@
 /**
  * Schedule Database Admin & Template Configuration
+ * Supports local customization and multi-user Supabase Cloud Master Schedule sync.
  */
 
 import * as Config from '../config.js';
-import { openModal, closeModal, customAlert } from '../ui/core.js';
+import { openModal, closeModal, customAlert, showToast, showLoading } from '../ui/core.js';
 import { renderDatabaseAdmin, addEmptyMatchupRow } from '../ui/admin.js';
+import { isSupabaseConfigured, supabaseRequest } from './supabase.js';
 
 export function getScheduleDatabase() {
     try {
@@ -12,6 +14,63 @@ export function getScheduleDatabase() {
         if (custom) return JSON.parse(custom);
     } catch (_) {}
     return Config.SCHEDULE_TEMPLATES;
+}
+
+export async function syncScheduleTemplatesFromCloud() {
+    if (!isSupabaseConfigured()) return;
+    try {
+        const rows = await supabaseRequest('schedule_templates?id=eq.master_s18&limit=1', 'GET');
+        if (rows && rows[0] && rows[0].templates_data) {
+            localStorage.setItem('mpl_custom_schedule_db', JSON.stringify(rows[0].templates_data));
+        }
+    } catch (err) {
+        console.warn('Gagal sinkronisasi master jadwal dari cloud:', err);
+    }
+}
+
+export async function pushScheduleTemplatesToCloud() {
+    if (!isSupabaseConfigured()) {
+        showToast("Supabase Cloud belum dikonfigurasi.", "warning");
+        return;
+    }
+    showLoading(true);
+    try {
+        const db = getScheduleDatabase();
+        await supabaseRequest('schedule_templates', 'POST', [{
+            id: 'master_s18',
+            templates_data: db,
+            updated_at: new Date().toISOString()
+        }], 'resolution=merge-duplicates');
+        showToast("Master jadwal berhasil di-push ke Cloud untuk semua user!", "success");
+    } catch (err) {
+        showToast("Gagal push jadwal ke Cloud: " + err.message, "error");
+    } finally {
+        showLoading(false);
+    }
+}
+
+export async function pullScheduleTemplatesFromCloud() {
+    if (!isSupabaseConfigured()) {
+        showToast("Supabase Cloud belum dikonfigurasi.", "warning");
+        return;
+    }
+    showLoading(true);
+    try {
+        const rows = await supabaseRequest('schedule_templates?id=eq.master_s18&limit=1', 'GET');
+        if (rows && rows[0] && rows[0].templates_data) {
+            localStorage.setItem('mpl_custom_schedule_db', JSON.stringify(rows[0].templates_data));
+            const templateKey = window.activeAdminTemplate || 'standard';
+            const allTeams = Config.getInitialMockTeams();
+            renderDatabaseAdmin(templateKey, rows[0].templates_data[templateKey] || rows[0].templates_data['standard'], allTeams);
+            showToast("Jadwal Season 18 terbaru berhasil ditarik dari Cloud!", "success");
+        } else {
+            showToast("Belum ada master jadwal di Cloud. Silakan simpan jadwal terlebih dahulu.", "info");
+        }
+    } catch (err) {
+        showToast("Gagal tarik jadwal dari Cloud: " + err.message, "error");
+    } finally {
+        showLoading(false);
+    }
 }
 
 export function openDatabaseAdmin() {
@@ -49,8 +108,8 @@ export function saveScheduleDatabase() {
     const newMatchups = [];
 
     matchupRows.forEach(row => {
-        const week = parseInt(row.querySelector('.admin-input-week')?.value) || 1;
-        const day = parseInt(row.querySelector('.admin-input-day')?.value) || 1;
+        const week = parseInt(row.querySelector('.admin-input-week')?.value, 10) || 1;
+        const day = parseInt(row.querySelector('.admin-input-day')?.value, 10) || 1;
         const teamA = row.querySelector('.admin-input-teamA')?.value || '';
         const teamB = row.querySelector('.admin-input-teamB')?.value || '';
 
@@ -70,7 +129,12 @@ export function saveScheduleDatabase() {
         localStorage.setItem('mpl_custom_schedule_db', JSON.stringify(db));
     } catch (_) {}
 
-    customAlert("Database Jadwal berhasil diperbarui!");
+    if (isSupabaseConfigured()) {
+        pushScheduleTemplatesToCloud().catch(err => console.warn('Auto-push template to cloud failed:', err));
+    } else {
+        showToast("Database Jadwal berhasil diperbarui secara lokal!", "success");
+    }
+
     closeModal('modal-database-admin');
 }
 
@@ -85,5 +149,5 @@ export function resetTemplateToDefault() {
 
     const allTeams = Config.getInitialMockTeams();
     renderDatabaseAdmin(templateKey, db[templateKey], allTeams);
-    customAlert(`Template ${templateKey} telah direset ke setelan pabrik.`);
+    showToast(`Template ${templateKey} telah direset ke setelan pabrik.`, "info");
 }

@@ -63,12 +63,20 @@ CREATE TABLE IF NOT EXISTS public.playoffs (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- 6. Table Master Schedule Templates (Untuk sinkronisasi jadwal ke semua user)
+CREATE TABLE IF NOT EXISTS public.schedule_templates (
+    id TEXT PRIMARY KEY,
+    templates_data JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.matches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.playoffs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.schedule_templates ENABLE ROW LEVEL SECURITY;
 
 -- Anon Access Policies (Akses publik REST API dengan anon key)
 DROP POLICY IF EXISTS "Anon Full Access Sessions" ON public.sessions;
@@ -85,3 +93,6 @@ CREATE POLICY "Anon Full Access Settings" ON public.settings FOR ALL TO anon USI
 
 DROP POLICY IF EXISTS "Anon Full Access Playoffs" ON public.playoffs;
 CREATE POLICY "Anon Full Access Playoffs" ON public.playoffs FOR ALL TO anon USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Anon Full Access Schedule Templates" ON public.schedule_templates;
+CREATE POLICY "Anon Full Access Schedule Templates" ON public.schedule_templates FOR ALL TO anon USING (true) WITH CHECK (true);

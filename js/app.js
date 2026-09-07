@@ -24,6 +24,7 @@ window.addEventListener('DOMContentLoaded', () => {
     Theme.applySavedTheme();
     cleanupServiceWorkers();
     Sessions.syncSessionsFromCloud().catch(err => console.warn('Cloud sync error:', err));
+    Admin.syncScheduleTemplatesFromCloud().catch(err => console.warn('Cloud schedule sync error:', err));
 
     // Attach modules to window for inline HTML template compatibility
     // Sessions
@@ -83,6 +84,8 @@ window.addEventListener('DOMContentLoaded', () => {
     window.removeMatchupRow = Admin.removeMatchupRow;
     window.saveScheduleDatabase = Admin.saveScheduleDatabase;
     window.resetTemplateToDefault = Admin.resetTemplateToDefault;
+    window.pushScheduleTemplatesToCloud = Admin.pushScheduleTemplatesToCloud;
+    window.pullScheduleTemplatesFromCloud = Admin.pullScheduleTemplatesFromCloud;
 
     // Settings & Supabase
     window.openSettingsModal = openSettingsModal;

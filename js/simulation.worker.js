@@ -3,6 +3,27 @@ onmessage = function(e) {
     const ITERATIONS = 30000;
     const scheduledMatches = allMatches.filter(m => m.status === 'SCHEDULED');
 
+    // Instant deterministic short-circuit when all matches are completed (0ms CPU economy)
+    if (scheduledMatches.length === 0 && teams && teams.length > 0) {
+        const sorted = [...teams].map(t => ({
+            ...t,
+            match_win: parseInt(t.match_win) || 0,
+            points: (parseInt(t.game_win) || 0) - (parseInt(t.game_lose) || 0)
+        })).sort((a, b) => (b.match_win - a.match_win) || (b.points - a.points));
+
+        const res = sorted.map((t, idx) => ({
+            id: t.id,
+            tag: t.tag,
+            team_name: t.team_name,
+            prob_upper: idx < 2 ? "100.00%" : "0.00%",
+            prob_playin: (idx >= 2 && idx < 6) ? "100.00%" : "0.00%",
+            prob_playoff: idx < 6 ? "100.00%" : "0.00%",
+            prob_elim: idx >= 6 ? "100.00%" : "0.00%"
+        }));
+        postMessage(res);
+        return;
+    }
+
     // Rivalries (hardcoded or passed from settings)
     const RIVALRIES = [
         { teams: ["RRQ", "EVOS"], intensity: 1.2 },

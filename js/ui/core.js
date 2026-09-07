@@ -34,8 +34,8 @@ export function getAppLogoSvg(sizeClass = 'w-9 h-9') {
             <defs>
                 <linearGradient id="mplGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#E11D48" />
-                    <stop offset="60%" stop-color="#9B111E" />
-                    <stop offset="100%" stop-color="#5B0710" />
+                    <stop offset="60%" stop-color="#BE123C" />
+                    <stop offset="100%" stop-color="#4C0519" />
                 </linearGradient>
                 <linearGradient id="mplInner" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
@@ -221,12 +221,12 @@ export function switchMatchSubTab(tabId) {
     const contPlayoffs = document.getElementById('container-match-playoffs');
 
     if (tabId === 'regular') {
-        if (btnRegular) btnRegular.className = "pb-2 border-b-2 border-[#9B111E] text-[#9B111E] font-semibold px-2 uppercase tracking-wide text-sm transition-all";
+        if (btnRegular) btnRegular.className = "pb-2 border-b-2 border-rose-600 text-rose-500 font-semibold px-2 uppercase tracking-wide text-sm transition-all";
         if (btnPlayoffs) btnPlayoffs.className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-semibold px-2 uppercase tracking-wide text-sm transition-all";
         if (contRegular) contRegular.classList.remove('hidden');
         if (contPlayoffs) contPlayoffs.classList.add('hidden');
     } else {
-        if (btnPlayoffs) btnPlayoffs.className = "pb-2 border-b-2 border-[#9B111E] text-[#9B111E] font-semibold px-2 uppercase tracking-wide text-sm transition-all";
+        if (btnPlayoffs) btnPlayoffs.className = "pb-2 border-b-2 border-rose-600 text-rose-500 font-semibold px-2 uppercase tracking-wide text-sm transition-all";
         if (btnRegular) btnRegular.className = "pb-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-semibold px-2 uppercase tracking-wide text-sm transition-all";
         if (contRegular) contRegular.classList.add('hidden');
         if (contPlayoffs) contPlayoffs.classList.remove('hidden');

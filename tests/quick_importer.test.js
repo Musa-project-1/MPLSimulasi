@@ -74,5 +74,25 @@ describe('Fast Match & Score Importer (Quick Batch Text Parser)', () => {
             expect(results[0].teamA).toBe('ONIC');
             expect(results[0].teamB).toBe('RRQ');
         });
+
+        it('tolerates parentheses and brackets in match scores', () => {
+            const text = `
+            Week 6
+            ONIC (2) - (0) RRQ
+            BTR [2] : [1] EVOS
+            `;
+
+            const results = parseMatchText(text);
+            expect(results.length).toBe(2);
+            expect(results[0].scoreA).toBe(2);
+            expect(results[0].scoreB).toBe(0);
+            expect(results[0].teamA).toBe('ONIC');
+            expect(results[0].teamB).toBe('RRQ');
+
+            expect(results[1].scoreA).toBe(2);
+            expect(results[1].scoreB).toBe(1);
+            expect(results[1].teamA).toBe('BTR');
+            expect(results[1].teamB).toBe('EVOS');
+        });
     });
 });

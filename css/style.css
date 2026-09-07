@@ -1,7 +1,7 @@
 :root {
-    --mpl-red: #9B111E;
-    --mpl-red-dark: #7a0d18;
-    --mpl-red-glow: rgba(155, 17, 30, 0.15);
+    --mpl-red: #E11D48;
+    --mpl-red-dark: #BE123C;
+    --mpl-red-glow: rgba(225, 29, 72, 0.15);
     
     /* Default (Light) Theme Variables - Soft Minimalist */
     --bg-main: #fcfcfd;

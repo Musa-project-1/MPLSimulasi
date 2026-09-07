@@ -139,8 +139,8 @@ export function parseMatchText(rawText) {
         if (/^minggu\b/i.test(trimmed) && !/^minggu\s*\d/i.test(trimmed)) { currentDay = 3; return; }
 
         // Try matching score line: Team A [scoreA - scoreB] Team B
-        // e.g. "EVOS 2-0 RRQ" or "BTR 2 - 1 GEEK"
-        const matchScores = trimmed.match(/([A-Za-z\s]+?)\s+(\d)\s*[-:]\s*(\d)\s+([A-Za-z\s]+)/);
+        // e.g. "EVOS 2-0 RRQ" or "BTR (2) - (1) GEEK" or "ONIC [2] : [0] RRQ"
+        const matchScores = trimmed.match(/([A-Za-z\s]+?)\s+[\(\[]?(\d)[\)\]]?\s*[-:]\s*[\(\[]?(\d)[\)\]]?\s+([A-Za-z\s]+)/);
         if (matchScores) {
             const teamATag = normalizeTeamTag(matchScores[1]);
             const scoreA = parseInt(matchScores[2], 10);

@@ -10,14 +10,30 @@ let chartInstance = null;
 
 export function renderChart(topTeams = []) {
     const canvas = document.getElementById('winRateChart');
-    if (!canvas || typeof Chart === 'undefined') return;
+    if (!canvas) return;
+
+    if (typeof Chart === 'undefined') {
+        const container = canvas.parentElement;
+        if (container && topTeams && topTeams.length > 0) {
+            container.innerHTML = `
+                <div class="h-full flex flex-col items-center justify-center text-center p-6">
+                    <i class="ph ph-chart-bar text-3xl mb-2 text-rose-500"></i>
+                    <p class="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">Statistik Poin Teratas</p>
+                    <div class="flex flex-wrap justify-center gap-2 mt-3">
+                        ${topTeams.slice(0, 5).map(t => `<span class="px-3 py-1 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] text-xs font-bold text-rose-500">${t.tag}: ${t.points} Pts</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        return;
+    }
 
     const ctx = canvas.getContext('2d');
     if (chartInstance) chartInstance.destroy();
 
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-    gradient.addColorStop(0, '#9B111E');
-    gradient.addColorStop(1, '#f43f5e');
+    gradient.addColorStop(0, '#E11D48');
+    gradient.addColorStop(1, '#BE123C');
 
     chartInstance = new Chart(ctx, {
         type: 'bar',
@@ -27,7 +43,7 @@ export function renderChart(topTeams = []) {
                 label: 'Points',
                 data: topTeams.map(t => t.points),
                 backgroundColor: gradient,
-                hoverBackgroundColor: '#7a0d18',
+                hoverBackgroundColor: '#9F1239',
                 borderRadius: 8,
                 barThickness: 32
             }]

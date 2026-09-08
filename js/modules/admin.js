@@ -6,7 +6,7 @@
 import * as Config from '../config.js';
 import { openModal, closeModal, customAlert, showToast, showLoading } from '../ui/core.js';
 import { renderDatabaseAdmin, addEmptyMatchupRow } from '../ui/admin.js';
-import { isSupabaseConfigured, supabaseRequest } from './supabase.js';
+import { adminMutation, isSupabaseConfigured, supabaseRequest } from './supabase.js';
 import { isAdminLoggedIn, openAdminLoginModal } from './admin_auth.js';
 import { validateMatchupTeams } from '../rules/validators.js';
 
@@ -42,11 +42,11 @@ export async function pushScheduleTemplatesToCloud() {
     showLoading(true);
     try {
         const db = getScheduleDatabase();
-        await supabaseRequest('schedule_templates', 'POST', [{
+        await adminMutation('upsert_schedule', {
             id: 'master_s18',
             templates_data: db,
             updated_at: new Date().toISOString()
-        }], 'resolution=merge-duplicates');
+        });
         showToast("Master jadwal berhasil di-push ke Cloud untuk semua user!", "success");
     } catch (err) {
         showToast("Gagal push jadwal ke Cloud: " + err.message, "error");

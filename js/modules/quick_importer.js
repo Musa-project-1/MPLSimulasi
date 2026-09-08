@@ -6,7 +6,7 @@
 
 import * as Store from '../store.js';
 import { showToast, showLoading, customAlert } from '../ui/core.js';
-import { isSupabaseConfigured } from './supabase.js';
+import { adminMutation, isSupabaseConfigured } from './supabase.js';
 import { validateBo3Score } from '../rules/validators.js';
 import { getMasterTeams } from './teams_db.js';
 import { refreshAppViews } from '../ui/refresh.js';
@@ -246,8 +246,7 @@ export async function applyBatchMatches(parsedMatches, sessionId = Store.activeS
         // User simulation data stays local-first. Only the official live snapshot is broadcast.
         if (isSupabaseConfigured() && sessionId) {
             // Broadcast official live matches snapshot for other users
-            const { supabaseRequest } = await import('./supabase.js');
-            await supabaseRequest('schedule_templates', 'POST', [{
+            await adminMutation('broadcast_live', {
                 id: 'official_live_matches',
                 templates_data: {
                     sessionId,
@@ -256,7 +255,7 @@ export async function applyBatchMatches(parsedMatches, sessionId = Store.activeS
                     updated_at: new Date().toISOString()
                 },
                 updated_at: new Date().toISOString()
-            }], 'resolution=merge-duplicates').catch(e => console.warn("Live broadcast failed:", e));
+            }).catch(e => console.warn("Live broadcast failed:", e));
         }
 
         showToast(`Berhasil memperbarui ${updatedCount} pertandingan & disinkronkan ke Cloud!`, "success");

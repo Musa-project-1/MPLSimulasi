@@ -19,10 +19,10 @@ describe('Admin Authentication & Security Gate', () => {
         expect(isAdminLoggedIn()).toBe(false);
     });
 
-    it('successfully authenticates with the master default PIN', () => {
+    it('does not grant cloud admin access from the legacy PIN', () => {
         const res = authenticateAdmin(DEFAULT_ADMIN_PIN);
         expect(res.success).toBe(true);
-        expect(isAdminLoggedIn()).toBe(true);
+        expect(isAdminLoggedIn()).toBe(false);
     });
 
     it('rejects incorrect PIN and enforces lockout after 5 consecutive failures', () => {
@@ -57,8 +57,13 @@ describe('Admin Authentication & Security Gate', () => {
         setAdminPin(newPin, DEFAULT_ADMIN_PIN);
     });
 
-    it('clears authentication state upon logout', () => {
-        authenticateAdmin(DEFAULT_ADMIN_PIN);
+    it('clears Supabase authentication state upon logout', async () => {
+        globalThis.sessionStorage = {
+            value: JSON.stringify({ access_token: 'token', user: { app_metadata: { role: 'admin' } } }),
+            getItem() { return this.value; },
+            setItem(_, value) { this.value = value; },
+            removeItem() { this.value = null; }
+        };
         expect(isAdminLoggedIn()).toBe(true);
 
         logoutAdmin();

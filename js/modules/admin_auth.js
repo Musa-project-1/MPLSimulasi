@@ -5,6 +5,7 @@
 
 import { openModal, closeModal, showToast } from '../ui/core.js';
 import { safeStorage } from '../store.js';
+import { isSupabaseAuthAdmin, signInWithPassword, signOutSupabase } from './supabase.js';
 
 export const DEFAULT_ADMIN_PIN = 'mpl2026';
 export const MAX_FAILED_ATTEMPTS = 5;
@@ -44,12 +45,7 @@ export function setAdminPin(oldPin, newPin) {
 }
 
 export function isAdminLoggedIn() {
-    try {
-        if (typeof sessionStorage !== 'undefined') {
-            return sessionStorage.getItem('mpl_admin_authenticated') === 'true';
-        }
-    } catch (_) {}
-    return sessionAdminAuth;
+    return isSupabaseAuthAdmin();
 }
 
 export function authenticateAdmin(inputPin) {
@@ -93,6 +89,7 @@ export function authenticateAdmin(inputPin) {
 }
 
 export function logoutAdmin() {
+    signOutSupabase();
     try {
         if (typeof sessionStorage !== 'undefined') {
             sessionStorage.removeItem('mpl_admin_authenticated');
@@ -109,8 +106,10 @@ export function openAdminLoginModal(onSuccessCallback = null) {
         return;
     }
 
-    const pinInput = document.getElementById('input-admin-pin');
-    if (pinInput) pinInput.value = '';
+    const emailInput = document.getElementById('input-admin-email');
+    const passwordInput = document.getElementById('input-admin-password');
+    if (emailInput) emailInput.value = '';
+    if (passwordInput) passwordInput.value = '';
 
     const errEl = document.getElementById('admin-login-error');
     if (errEl) errEl.classList.add('hidden');
@@ -118,21 +117,20 @@ export function openAdminLoginModal(onSuccessCallback = null) {
     openModal('modal-admin-login');
 }
 
-export function submitAdminLogin(e) {
+export async function submitAdminLogin(e) {
     if (e && e.preventDefault) e.preventDefault();
-    const pin = document.getElementById('input-admin-pin')?.value || '';
-    const result = authenticateAdmin(pin);
-
+    const email = document.getElementById('input-admin-email')?.value || '';
+    const password = document.getElementById('input-admin-password')?.value || '';
+    const result = await signInWithPassword(email, password);
     const errEl = document.getElementById('admin-login-error');
 
     if (result.success) {
         closeModal('modal-admin-login');
-        showToast("Autentikasi Admin berhasil! Mode Master aktif.", "success");
-    } else {
-        if (errEl) {
-            errEl.innerText = result.error;
-            errEl.classList.remove('hidden');
-        }
+        updateAdminUIState();
+        showToast("Login Admin berhasil. Mode Master aktif.", "success");
+    } else if (errEl) {
+        errEl.innerText = result.error;
+        errEl.classList.remove('hidden');
     }
 }
 

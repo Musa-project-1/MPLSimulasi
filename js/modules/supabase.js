@@ -25,6 +25,83 @@ export function saveSupabaseConfig(url, key) {
     Store.safeStorage.setItem('mpl_supabase_key', (key || '').trim());
 }
 
+const AUTH_SESSION_KEY = 'mpl_supabase_auth_session';
+
+function getAuthSession() {
+    try {
+        const raw = typeof sessionStorage !== 'undefined'
+            ? sessionStorage.getItem(AUTH_SESSION_KEY)
+            : null;
+        return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+        return null;
+    }
+}
+
+function saveAuthSession(session) {
+    if (typeof sessionStorage === 'undefined') return;
+    sessionStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+}
+
+export function getAuthAccessToken() {
+    return getAuthSession()?.access_token || null;
+}
+
+export function isSupabaseAuthAdmin() {
+    return getAuthSession()?.user?.app_metadata?.role === 'admin';
+}
+
+export async function signInWithPassword(email, password) {
+    const { url, key } = getSupabaseConfig();
+    if (!url || !key) return { success: false, error: 'Supabase belum dikonfigurasi.' };
+    if (!email?.trim() || !password) return { success: false, error: 'Email dan password wajib diisi.' };
+
+    try {
+        const authUrl = `${url}/auth/v1/token?grant_type=password`;
+        const response = await fetch(authUrl, {
+            method: 'POST',
+            headers: { apikey: key, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email.trim(), password })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) return { success: false, error: 'Login Supabase gagal.' };
+        if (data.user?.app_metadata?.role !== 'admin') {
+            return { success: false, error: 'Akun ini bukan admin.' };
+        }
+        saveAuthSession(data);
+        return { success: true, user: data.user };
+    } catch (_) {
+        return { success: false, error: 'Tidak dapat menghubungi Supabase Auth.' };
+    }
+}
+
+export function signOutSupabase() {
+    try {
+        if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem(AUTH_SESSION_KEY);
+    } catch (_) {}
+}
+
+export async function adminMutation(action, payload) {
+    const { url, key } = getSupabaseConfig();
+    const token = getAuthAccessToken();
+    if (!url || !key) throw new Error('Supabase belum dikonfigurasi.');
+    if (!token || !isSupabaseAuthAdmin()) throw new Error('Sesi admin Supabase belum aktif.');
+
+    const functionUrl = `${url}/functions/v1/admin-mutate`;
+    const response = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+            apikey: key,
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action, payload })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Admin mutation gagal.');
+    return data;
+}
+
 export function isSupabaseConfigured() {
     const { url, key } = getSupabaseConfig();
     return Boolean(url && key && url.startsWith('http'));

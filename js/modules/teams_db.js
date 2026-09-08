@@ -4,7 +4,7 @@
  */
 
 import { safeStorage } from '../store.js';
-import { isSupabaseConfigured, supabaseRequest } from './supabase.js';
+import { adminMutation, isSupabaseConfigured, supabaseRequest } from './supabase.js';
 
 export const MASTER_TEAMS_STORAGE_KEY = 'mpl_master_teams_catalog';
 
@@ -226,14 +226,14 @@ export async function pushMasterTeamsToCloud() {
 
     const teams = getMasterTeams();
     try {
-        await supabaseRequest('schedule_templates', 'POST', [{
+        await adminMutation('upsert_teams', {
             id: 'master_teams_catalog',
             templates_data: {
                 teams,
                 updated_at: new Date().toISOString()
             },
             updated_at: new Date().toISOString()
-        }], 'resolution=merge-duplicates');
+        });
 
         return { success: true, count: teams.length };
     } catch (err) {

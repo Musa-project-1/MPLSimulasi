@@ -68,8 +68,9 @@ function parseStoredArray(key) {
 }
 
 export function migrateStorageSchema() {
-    const current = Number(safeStorage.getItem(STORAGE_SCHEMA_KEY) || 1);
-    if (current < 2) {
+    const rawVersion = Number(safeStorage.getItem(STORAGE_SCHEMA_KEY));
+    const current = Number.isSafeInteger(rawVersion) && rawVersion > 0 ? rawVersion : 1;
+    if (current < STORAGE_SCHEMA_VERSION) {
         const sessions = parseStoredArray('mpl_sim_sessions');
         sessions.forEach(session => {
             if (!session.shareKey) session.shareKey = null;

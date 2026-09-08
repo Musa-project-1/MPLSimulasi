@@ -19,6 +19,16 @@ jobs:
       - run: npm test -- --run
       - run: npm audit --audit-level=moderate
       - run: git diff --check
+      - name: Reject server credentials
+        run: |
+          if git grep -n -I -E 'service_role|BEGIN (RSA|OPENSSH|EC) PRIVATE KEY' -- '*.js' '*.html' '*.sql' '*.json' ':!package-lock.json' ':!.hermes/**'; then
+            echo 'Potential server credential found in tracked files.'
+            exit 1
+          fi
+      - name: Report HTML size
+        run: |
+          lines=$(wc -l < index.html)
+          echo "index.html: $lines lines (refactor follow-up target: 450)"
       - name: Enforce source file size
         run: |
           files=$(find js -type f -name '*.js')
@@ -29,3 +39,5 @@ jobs:
               exit 1
             fi
           done
+      - name: Validate diff whitespace
+        run: git diff --check

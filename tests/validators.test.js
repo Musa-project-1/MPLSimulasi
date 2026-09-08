@@ -134,12 +134,34 @@ describe('Validation & Sanitization Engine', () => {
             expect(validateSessionImport({ ...base, matches: [{ id: 'm1', team_a_id: 't1', team_b_id: 't2', score_a: '3', score_b: '0' }] }).valid).toBe(false);
         });
 
+        it('rejects partially empty or malformed numeric scores', () => {
+            const base = { type: 'MPL_SIM_SESSION', session: { id: 's1', name: 'Valid' }, teams: [{ id: 't1', team_name: 'A', tag: 'AA' }, { id: 't2', team_name: 'B', tag: 'BB' }] };
+            const makeMatch = (score_a, score_b) => ({ ...base, matches: [{ id: 'm1', team_a_id: 't1', team_b_id: 't2', score_a, score_b }] });
+
+            expect(validateSessionImport(makeMatch('2', '')).valid).toBe(false);
+            expect(validateSessionImport(makeMatch('2x', '0')).valid).toBe(false);
+            expect(validateSessionImport(makeMatch('Infinity', '0')).valid).toBe(false);
+        });
+
+        it('rejects duplicate player IDs within a team roster', () => {
+            const data = {
+                type: 'MPL_SIM_SESSION',
+                session: { id: 's1', name: 'Valid' },
+                teams: [
+                    { id: 't1', team_name: 'A', tag: 'AA', roster: [{ id: 'p1', nick: 'One', role: 'Jungler' }, { id: 'p1', nick: 'Two', role: 'Mid Laner' }] },
+                    { id: 't2', team_name: 'B', tag: 'BB' }
+                ],
+                matches: [{ id: 'm1', team_a_id: 't1', team_b_id: 't2', score_a: '', score_b: '' }]
+            };
+            expect(validateSessionImport(data).valid).toBe(false);
+        });
+
         it('sanitizes and passes valid session structures', () => {
             const validData = {
                 type: "MPL_SIM_SESSION",
                 session: { id: "sess_1", name: "<b>Test</b> Session", timestamp: 123456 },
                 teams: [{ id: "t1", team_name: "Team 1", tag: "T1", match_win: "3" }],
-                matches: [{ id: "m1", week: "1", day: "1", team_a_id: "t1", score_a: "2" }]
+                matches: [{ id: "m1", week: "1", day: "1", team_a_id: "t1", score_a: "", score_b: "" }]
             };
 
             const res = validateSessionImport(validData);

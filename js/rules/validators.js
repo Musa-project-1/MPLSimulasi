@@ -11,6 +11,15 @@ export const VALID_ROLES = [
     "Roamer"
 ];
 
+function parseStrictInteger(value) {
+    if (typeof value === 'number') {
+        return Number.isSafeInteger(value) ? value : null;
+    }
+    if (typeof value !== 'string' || !/^-?\\d+$/.test(value.trim())) return null;
+    const parsed = Number(value.trim());
+    return Number.isSafeInteger(parsed) ? parsed : null;
+}
+
 /**
  * Validates regular season Bo3 match score.
  * Legal scores in MPL Bo3:
@@ -40,10 +49,10 @@ export function validateBo3Score(scoreA, scoreB) {
         return { valid: true, isReset: true, scoreA: "", scoreB: "" };
     }
 
-    const sA = parseInt(scoreA, 10);
-    const sB = parseInt(scoreB, 10);
+    const sA = parseStrictInteger(scoreA);
+    const sB = parseStrictInteger(scoreB);
 
-    if (isNaN(sA) || isNaN(sB) || sA < 0 || sB < 0) {
+    if (sA === null || sB === null || sA < 0 || sB < 0) {
         return { valid: false, error: "Skor harus berupa angka bilangan bulat non-negatif." };
     }
 
@@ -77,10 +86,10 @@ export function validatePlayoffScore(scoreA, scoreB, isGrandFinal = false) {
         return { valid: true, isComplete: false, scoreA: "", scoreB: "", winner: null };
     }
 
-    const sA = parseInt(scoreA, 10);
-    const sB = parseInt(scoreB, 10);
+    const sA = parseStrictInteger(scoreA);
+    const sB = parseStrictInteger(scoreB);
 
-    if (isNaN(sA) || isNaN(sB) || sA < 0 || sB < 0) {
+    if (sA === null || sB === null || sA < 0 || sB < 0) {
         return { valid: false, error: "Skor playoff harus berupa angka valid." };
     }
 
@@ -210,6 +219,17 @@ export function validateSessionImport(data) {
         roster: Array.isArray(t.roster) ? t.roster : []
     }));
 
+    for (const team of sanitizedTeams) {
+        const playerIds = new Set();
+        for (const player of team.roster) {
+            const playerId = String(player?.id || '');
+            if (!playerId || playerIds.has(playerId)) {
+                return { valid: false, error: `Roster tim ${team.id} memiliki ID pemain duplikat atau kosong.` };
+            }
+            playerIds.add(playerId);
+        }
+    }
+
     const teamIds = new Set();
     for (const team of sanitizedTeams) {
         if (!team.id || teamIds.has(team.id)) {
@@ -234,7 +254,10 @@ export function validateSessionImport(data) {
 
         const rawA = m.score_a === undefined || m.score_a === null ? '' : String(m.score_a).trim();
         const rawB = m.score_b === undefined || m.score_b === null ? '' : String(m.score_b).trim();
-        const score = rawA === '' || rawB === ''
+        if ((rawA === '') !== (rawB === '')) {
+            return { valid: false, error: `Skor match ${id} harus memiliki kedua sisi atau keduanya kosong.` };
+        }
+        const score = rawA === '' && rawB === ''
             ? { valid: true, isReset: true, scoreA: '', scoreB: '' }
             : validateBo3Score(rawA, rawB);
         if (!score.valid) return { valid: false, error: `Skor match ${id} tidak valid: ${score.error}` };

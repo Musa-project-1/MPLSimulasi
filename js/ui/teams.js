@@ -176,10 +176,10 @@ export function renderRoster(teamId) {
             statsBody.innerHTML += `
                 <tr class="hover:bg-[var(--bg-secondary)] transition-colors">
                     <td class="px-4 py-4">
-                        <p class="font-bold text-[var(--text-primary)]">${p.nick}</p>
+                        <p class="font-bold text-[var(--text-primary)]">${escapeHTML(p.nick)}</p>
                     </td>
                     <td class="px-2 py-4 text-center">
-                        <span class="text-[9px] font-black bg-[var(--bg-secondary)] px-2 py-0.5 rounded text-[var(--text-secondary)] uppercase">${p.role}</span>
+                        <span class="text-[9px] font-black bg-[var(--bg-secondary)] px-2 py-0.5 rounded text-[var(--text-secondary)] uppercase">${escapeHTML(p.role)}</span>
                     </td>
                     <td class="px-2 py-4 text-center font-mono font-bold text-[var(--text-primary)]">
                         ${p.stats.kills}/${p.stats.deaths}/${p.stats.assists}

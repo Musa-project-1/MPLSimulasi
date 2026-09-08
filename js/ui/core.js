@@ -102,7 +102,7 @@ export function showToast(message, type = 'info') {
     toast.className = `flex items-center gap-3 px-4 py-3 rounded-2xl border ${scheme} shadow-2xl backdrop-blur-md text-xs font-bold uppercase tracking-wider transform translate-y-4 opacity-0 transition-all duration-300 pointer-events-auto max-w-sm`;
     toast.innerHTML = `
         <i class="ph-fill ${icon} text-lg flex-shrink-0"></i>
-        <span class="text-[var(--text-primary)] normal-case font-medium flex-1">${message}</span>
+        <span class="text-[var(--text-primary)] normal-case font-medium flex-1">${escapeHTML(message)}</span>
     `;
 
     container.appendChild(toast);

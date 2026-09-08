@@ -21,6 +21,7 @@ import * as ShareUrl from './modules/share_url.js';
 import * as Sandbox from './modules/sandbox.js';
 import * as Supabase from './modules/supabase.js';
 import { runSimulation } from './simulation/engine.js';
+import { registerViewLoaders } from './ui/refresh.js';
 
 // --- INITIALIZATION ---
 window.addEventListener('DOMContentLoaded', () => {
@@ -120,6 +121,8 @@ window.addEventListener('DOMContentLoaded', () => {
     window.openSettingsModal = openSettingsModal;
     window.saveSettings = saveSettings;
     window.handleTestSupabase = handleTestSupabase;
+
+    registerViewLoaders({ matches: loadMatches, standings: loadStandings, dashboard: loadDashboard });
 
     // App Loaders
     window.initApp = initApp;

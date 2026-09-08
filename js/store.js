@@ -9,6 +9,9 @@ export let sessionsList = [];
 export let globalTeams = [];
 export let globalMatches = [];
 
+export const STORAGE_SCHEMA_VERSION = 2;
+const STORAGE_SCHEMA_KEY = 'mpl_storage_schema_version';
+
 const memStorage = new Map();
 export const safeStorage = {
     getItem: (k) => {
@@ -64,7 +67,20 @@ function parseStoredArray(key) {
     }
 }
 
+export function migrateStorageSchema() {
+    const current = Number(safeStorage.getItem(STORAGE_SCHEMA_KEY) || 1);
+    if (current < 2) {
+        const sessions = parseStoredArray('mpl_sim_sessions');
+        sessions.forEach(session => {
+            if (!session.shareKey) session.shareKey = null;
+        });
+        safeStorage.setItem('mpl_sim_sessions', JSON.stringify(sessions));
+        safeStorage.setItem(STORAGE_SCHEMA_KEY, String(STORAGE_SCHEMA_VERSION));
+    }
+}
+
 export function loadSessionsList() {
+    migrateStorageSchema();
     sessionsList = parseStoredArray('mpl_sim_sessions');
     return sessionsList;
 }

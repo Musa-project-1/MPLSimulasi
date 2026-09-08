@@ -9,6 +9,7 @@ import { calculateStandings } from '../rules/standings.js';
 import { getScheduleDatabase } from './admin.js';
 import { validateBo3Score } from '../rules/validators.js';
 import { playScoreSound } from './sound.js';
+import { refreshAppViews } from '../ui/refresh.js';
 
 let activeDetailMatchId = null;
 
@@ -114,9 +115,7 @@ export async function quickSetScore(matchId, scoreA, scoreB) {
         status
     });
 
-    if (window.loadMatches) window.loadMatches();
-    if (window.loadStandings) window.loadStandings();
-    if (window.loadDashboard) window.loadDashboard();
+    refreshAppViews();
 }
 
 export function openMatchDetailsModal(matchId) {
@@ -264,14 +263,12 @@ export async function saveMatchDetails() {
     }
 
     closeModal('modal-match-details');
-    if (window.loadMatches) window.loadMatches();
-    if (window.loadStandings) window.loadStandings();
-    if (window.loadDashboard) window.loadDashboard();
+    refreshAppViews();
 }
 
 export function changeWeek(week) {
     if (window.setCurrentViewWeek) window.setCurrentViewWeek(week);
-    if (window.loadMatches) window.loadMatches();
+    refreshAppViews({ standings: false, dashboard: false });
 }
 
 /**

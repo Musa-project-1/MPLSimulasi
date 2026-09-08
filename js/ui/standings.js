@@ -6,6 +6,7 @@ import { globalMatches } from '../store.js';
 import { getTeamLogo } from './core.js';
 import { calculateClinchStatus } from '../rules/clinch.js';
 import { calculateStandingsUpToWeek } from '../rules/standings.js';
+import { refreshAppViews } from './refresh.js';
 
 let activeStandingsWeek = 0;
 
@@ -130,9 +131,7 @@ export function loadStandings(teams = [], simTeams = [], targetWeek = activeStan
 
 export function setStandingsTimelineWeek(week, teams = []) {
     activeStandingsWeek = parseInt(week, 10) || 0;
-    if (typeof window !== 'undefined' && window.loadStandings) {
-        window.loadStandings(teams, [], activeStandingsWeek);
-    }
+    refreshAppViews({ matches: false, standings: true, dashboard: false, standingsArgs: [undefined, undefined, activeStandingsWeek] });
 }
 
 export function renderStandingsTimeline(matches = [], selectedWeek = 0) {

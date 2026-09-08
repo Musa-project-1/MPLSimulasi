@@ -210,19 +210,48 @@ export function validateSessionImport(data) {
         roster: Array.isArray(t.roster) ? t.roster : []
     }));
 
-    const sanitizedMatches = data.matches.map(m => ({
-        id: String(m.id || ''),
-        week: Math.max(1, parseInt(m.week, 10) || 1),
-        day: Math.max(1, parseInt(m.day, 10) || 1),
-        day_name: String(m.day_name || ''),
-        date: String(m.date || ''),
-        team_a_id: String(m.team_a_id || ''),
-        team_b_id: String(m.team_b_id || ''),
-        score_a: m.score_a !== undefined && m.score_a !== null ? String(m.score_a) : '',
-        score_b: m.score_b !== undefined && m.score_b !== null ? String(m.score_b) : '',
-        status: m.status === 'COMPLETED' ? 'COMPLETED' : 'SCHEDULED',
-        games: Array.isArray(m.games) ? m.games : []
-    }));
+    const teamIds = new Set();
+    for (const team of sanitizedTeams) {
+        if (!team.id || teamIds.has(team.id)) {
+            return { valid: false, error: 'Import memiliki ID tim duplikat atau kosong.' };
+        }
+        teamIds.add(team.id);
+    }
+
+    const matchIds = new Set();
+    const sanitizedMatches = [];
+    for (const m of data.matches) {
+        const id = String(m.id || '');
+        const teamA = String(m.team_a_id || '');
+        const teamB = String(m.team_b_id || '');
+        if (!id || matchIds.has(id)) {
+            return { valid: false, error: 'Import memiliki ID match duplikat atau kosong.' };
+        }
+        matchIds.add(id);
+        if (!teamA || !teamIds.has(teamA) || (teamB && (teamA === teamB || !teamIds.has(teamB)))) {
+            return { valid: false, error: 'Match import memiliki identitas tim atau ID yang tidak valid.' };
+        }
+
+        const rawA = m.score_a === undefined || m.score_a === null ? '' : String(m.score_a).trim();
+        const rawB = m.score_b === undefined || m.score_b === null ? '' : String(m.score_b).trim();
+        const score = rawA === '' || rawB === ''
+            ? { valid: true, isReset: true, scoreA: '', scoreB: '' }
+            : validateBo3Score(rawA, rawB);
+        if (!score.valid) return { valid: false, error: `Skor match ${id} tidak valid: ${score.error}` };
+        sanitizedMatches.push({
+            id,
+            week: Math.max(1, parseInt(m.week, 10) || 1),
+            day: Math.max(1, parseInt(m.day, 10) || 1),
+            day_name: String(m.day_name || '').replace(/[<>]/g, ''),
+            date: String(m.date || '').replace(/[<>]/g, ''),
+            team_a_id: teamA,
+            team_b_id: teamB,
+            score_a: score.scoreA,
+            score_b: score.scoreB,
+            status: score.isReset ? 'SCHEDULED' : 'COMPLETED',
+            games: Array.isArray(m.games) ? m.games : []
+        });
+    }
 
     return {
         valid: true,

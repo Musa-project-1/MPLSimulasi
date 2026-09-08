@@ -118,6 +118,22 @@ describe('Validation & Sanitization Engine', () => {
             expect(validateSessionImport({ type: 'OTHER' }).valid).toBe(false);
         });
 
+        it('rejects duplicate team and match IDs', () => {
+            const data = {
+                type: 'MPL_SIM_SESSION',
+                session: { id: 's1', name: 'Valid' },
+                teams: [{ id: 't1', team_name: 'A', tag: 'AA' }, { id: 't1', team_name: 'B', tag: 'BB' }],
+                matches: [{ id: 'm1', team_a_id: 't1', team_b_id: 't1', score_a: '', score_b: '' }]
+            };
+            expect(validateSessionImport(data).valid).toBe(false);
+        });
+
+        it('rejects malformed match references and scores', () => {
+            const base = { type: 'MPL_SIM_SESSION', session: { id: 's1', name: 'Valid' }, teams: [{ id: 't1', team_name: 'A', tag: 'AA' }, { id: 't2', team_name: 'B', tag: 'BB' }] };
+            expect(validateSessionImport({ ...base, matches: [{ id: 'm1', team_a_id: 't1', team_b_id: 'missing', score_a: '2', score_b: '0' }] }).valid).toBe(false);
+            expect(validateSessionImport({ ...base, matches: [{ id: 'm1', team_a_id: 't1', team_b_id: 't2', score_a: '3', score_b: '0' }] }).valid).toBe(false);
+        });
+
         it('sanitizes and passes valid session structures', () => {
             const validData = {
                 type: "MPL_SIM_SESSION",

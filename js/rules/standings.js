@@ -142,7 +142,7 @@ export function recalculateTeamStatsFromMatches(teams = [], matches = []) {
 export function calculateTeamStreak(teamId, matches = []) {
     const completed = matches
         .filter(m => m.status === 'COMPLETED' && (m.team_a_id === teamId || m.team_b_id === teamId))
-        .sort((a, b) => (parseInt(b.week) - parseInt(a.week)) || (parseInt(b.day) - parseInt(a.day)) || b.id.localeCompare(a.id));
+        .sort((a, b) => (parseInt(b.week) - parseInt(a.week)) || (parseInt(b.day) - parseInt(a.day)) || String(b.id || '').localeCompare(String(a.id || '')));
 
     if (completed.length === 0) return { type: 'NONE', count: 0, label: '-' };
 
@@ -169,18 +169,35 @@ export function calculateTeamStreak(teamId, matches = []) {
 /**
  * Canonical comparator shared by standings and clinch calculations.
  */
-export function compareStandingsTeams(a, b, matches = []) {
+export function compareStandingsTeams(a, b, matches = [], tiedTeamIds = []) {
     if ((b.match_win || 0) !== (a.match_win || 0)) return (b.match_win || 0) - (a.match_win || 0);
     if ((b.points || 0) !== (a.points || 0)) return (b.points || 0) - (a.points || 0);
 
     if (matches?.length) {
-        const h2h = getHeadToHeadRecord(a.id, b.id, matches);
-        if (h2h.diffMatches !== 0) return h2h.diffMatches > 0 ? -1 : 1;
-        if (h2h.diffGames !== 0) return h2h.diffGames > 0 ? -1 : 1;
+        const aH2h = tiedTeamIds.length > 2
+            ? getMiniLeagueH2H(a.id, tiedTeamIds, matches)
+            : getHeadToHeadRecord(a.id, b.id, matches);
+        const bH2h = tiedTeamIds.length > 2
+            ? getMiniLeagueH2H(b.id, tiedTeamIds, matches)
+            : getHeadToHeadRecord(b.id, a.id, matches);
+        const aMatchDiff = aH2h.matchDiff ?? aH2h.diffMatches ?? 0;
+        const bMatchDiff = bH2h.matchDiff ?? bH2h.diffMatches ?? 0;
+        const aGameDiff = aH2h.gameDiff ?? aH2h.diffGames ?? 0;
+        const bGameDiff = bH2h.gameDiff ?? bH2h.diffGames ?? 0;
+        if (bMatchDiff !== aMatchDiff) return bMatchDiff - aMatchDiff;
+        if (bGameDiff !== aGameDiff) return bGameDiff - aGameDiff;
+        if (tiedTeamIds.length > 2 && bH2h.gameWins !== aH2h.gameWins) return bH2h.gameWins - aH2h.gameWins;
     }
 
     if ((b.game_win || 0) !== (a.game_win || 0)) return (b.game_win || 0) - (a.game_win || 0);
     return String(a.tag || a.id || '').localeCompare(String(b.tag || b.id || ''));
+}
+
+export function sortStandingsWithMiniLeague(list, matches = []) {
+    return [...list].sort((a, b) => {
+        const tied = list.filter(t => t.match_win === a.match_win && t.points === a.points);
+        return compareStandingsTeams(a, b, matches, tied.map(t => t.id));
+    });
 }
 
 /**
@@ -198,7 +215,7 @@ export function calculateStandings(teams = [], matches = []) {
         streak: calculateTeamStreak(t.id, matches)
     }));
 
-    const sorted = list.sort((a, b) => compareStandingsTeams(a, b, matches));
+    const sorted = sortStandingsWithMiniLeague(list, matches);
 
     // Annotate tie-breaker reason if tied on match wins & points
     for (let i = 0; i < sorted.length; i++) {

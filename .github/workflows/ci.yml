@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test -- --run
+      - run: npm audit --audit-level=moderate
+      - run: git diff --check
+      - name: Enforce source file size
+        run: |
+          files=$(find js -type f -name '*.js')
+          for file in $files; do
+            lines=$(wc -l < "$file")
+            if [ "$lines" -gt 450 ]; then
+              echo "$file exceeds 450 lines ($lines)"
+              exit 1
+            fi
+          done

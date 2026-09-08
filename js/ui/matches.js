@@ -4,12 +4,13 @@
 
 import { globalTeams } from '../store.js';
 import { currentViewWeek, getTeamLogo } from './core.js';
+import { refreshAppViews } from './refresh.js';
 
 let activeTeamFilter = '';
 
 export function setActiveTeamFilter(teamId) {
     activeTeamFilter = teamId;
-    if (window.loadMatches) window.loadMatches();
+    refreshAppViews({ standings: false, dashboard: false });
 }
 
 export function loadMatches(data = []) {

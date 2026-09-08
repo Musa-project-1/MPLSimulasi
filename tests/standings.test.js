@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { 
     calculateStandings, 
-    getHeadToHeadRecord, 
+    getHeadToHeadRecord,
+    getMiniLeagueH2H,
     recalculateTeamStatsFromMatches 
 } from '../js/rules/standings.js';
 
@@ -49,6 +50,33 @@ describe('MPL Standings & Tie-Breaker Engine', () => {
         const standings = calculateStandings(mockTeams, matches);
         expect(standings[0].tag).toBe('RRQ');
         expect(standings[1].tag).toBe('ONIC');
+    });
+
+    it('calculates mini-league H2H across three tied teams', () => {
+        const matches = [
+            { team_a_id: 't1', team_b_id: 't2', score_a: 2, score_b: 0, status: 'COMPLETED' },
+            { team_a_id: 't2', team_b_id: 't3', score_a: 2, score_b: 1, status: 'COMPLETED' },
+            { team_a_id: 't3', team_b_id: 't1', score_a: 2, score_b: 0, status: 'COMPLETED' }
+        ];
+        const mini = getMiniLeagueH2H('t1', ['t1', 't2', 't3'], matches);
+        expect(mini.matchDiff).toBe(0);
+        expect(mini.gameDiff).toBe(0);
+        expect(mini.gameWins).toBe(2);
+    });
+
+    it('uses mini-league H2H before total game wins for three-way ties', () => {
+        const teams = [
+            { id: 't1', tag: 'AAA', match_win: 3, match_lose: 2, game_win: 10, game_lose: 5 },
+            { id: 't2', tag: 'BBB', match_win: 3, match_lose: 2, game_win: 9, game_lose: 6 },
+            { id: 't3', tag: 'CCC', match_win: 3, match_lose: 2, game_win: 8, game_lose: 7 }
+        ];
+        const matches = [
+            { team_a_id: 't1', team_b_id: 't2', score_a: 2, score_b: 0, status: 'COMPLETED' },
+            { team_a_id: 't2', team_b_id: 't3', score_a: 2, score_b: 0, status: 'COMPLETED' },
+            { team_a_id: 't3', team_b_id: 't1', score_a: 2, score_b: 1, status: 'COMPLETED' }
+        ];
+        const standings = calculateStandings(teams, matches);
+        expect(standings.map(team => team.id)).toEqual(['t1', 't2', 't3']);
     });
 
     it('correctly recalculates team stats from scratch given raw match results', () => {

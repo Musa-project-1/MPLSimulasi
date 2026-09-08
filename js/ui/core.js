@@ -4,6 +4,7 @@
 
 import { TEAM_LOGOS } from '../config.js';
 import { sessionsList } from '../store.js';
+import { refreshAppViews } from './refresh.js';
 
 export let currentViewWeek = 1;
 let lastModalTrigger = null;
@@ -205,10 +206,14 @@ export function switchTab(viewId, element) {
         targetView.classList.remove('hidden');
     }
 
-    if (viewId === 'dashboard' && window.loadDashboard) window.loadDashboard();
-    if (viewId === 'standings' && window.loadStandings) window.loadStandings();
-    if (viewId === 'matches' && window.loadMatches) window.loadMatches();
-    if (viewId === 'teams' && window.loadTeams) window.loadTeams();
+    if (viewId === 'dashboard' || viewId === 'standings' || viewId === 'matches') {
+        refreshAppViews({
+            matches: viewId === 'matches',
+            standings: viewId === 'standings',
+            dashboard: viewId === 'dashboard'
+        });
+    }
+    if (viewId === 'teams' && typeof window.loadTeams === 'function') window.loadTeams();
 }
 
 export function switchSubTab(tabId) {

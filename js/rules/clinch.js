@@ -3,7 +3,7 @@
  * Computes mathematical qualification, Upper Bracket locks, and elimination thresholds.
  */
 
-import { compareStandingsTeams } from './standings.js';
+import { sortStandingsWithMiniLeague } from './standings.js';
 
 export const CLINCH_STATUS = {
     UPPER_CLINCHED: 'UPPER_CLINCHED', // Locked Top 2 (Upper Semifinals Bye)
@@ -26,9 +26,7 @@ export function calculateClinchStatus(standings = [], totalSeasonMatchesPerTeam 
 
     // Enforce a deterministic standings order at this boundary. Clinch cutoffs
     // must never depend on an arbitrary caller array order.
-    const orderedStandings = [...standings].sort((a, b) => {
-        return compareStandingsTeams(a, b, matches);
-    });
+    const orderedStandings = sortStandingsWithMiniLeague(standings, matches);
 
     // Calculate max potential wins for every team
     const teamsWithPotential = orderedStandings.map(t => {

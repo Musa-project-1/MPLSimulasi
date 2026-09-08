@@ -6,6 +6,7 @@
 import * as Store from '../store.js';
 import { currentViewWeek, showToast, customAlert } from '../ui/core.js';
 import { fetchAPI } from './schedule.js';
+import { refreshAppViews } from '../ui/refresh.js';
 
 export async function simulateCurrentWeekMatches() {
     const week = currentViewWeek;
@@ -53,9 +54,7 @@ export async function simulateCurrentWeekMatches() {
 
     showToast(`Pertandingan Week ${week} berhasil disimulasikan!`, 'success');
 
-    if (window.loadMatches) window.loadMatches();
-    if (window.loadStandings) window.loadStandings();
-    if (window.loadDashboard) window.loadDashboard();
+    refreshAppViews();
 }
 
 export async function resetCurrentWeekMatches() {
@@ -79,9 +78,7 @@ export async function resetCurrentWeekMatches() {
 
     showToast(`Skor pertandingan Week ${week} telah direset.`, 'info');
 
-    if (window.loadMatches) window.loadMatches();
-    if (window.loadStandings) window.loadStandings();
-    if (window.loadDashboard) window.loadDashboard();
+    refreshAppViews();
 }
 
 export async function simulateAllRemainingMatches() {
@@ -129,7 +126,5 @@ export async function simulateAllRemainingMatches() {
 
     showToast("Seluruh sisa pertandingan musim ini berhasil disimulasikan!", 'success');
 
-    if (window.loadMatches) window.loadMatches();
-    if (window.loadStandings) window.loadStandings();
-    if (window.loadDashboard) window.loadDashboard();
+    refreshAppViews();
 }

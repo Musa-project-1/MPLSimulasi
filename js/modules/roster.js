@@ -6,6 +6,7 @@ import * as Store from '../store.js';
 import { openModal, closeModal, customAlert, getTeamLogo, escapeHTML } from '../ui/core.js';
 import { fetchAPI } from './schedule.js';
 import { validateTeamData, validatePlayerData } from '../rules/validators.js';
+import { refreshAppViews } from '../ui/refresh.js';
 
 let activePickerMatchId = null;
 let activePickerRole = null;
@@ -45,22 +46,22 @@ export async function updateMatchTeamInline(matchId, role, newTeamId) {
 
     if (match.status === 'COMPLETED') {
         customAlert("Pertandingan ini sudah selesai! Harap kosongkan skor jika ingin mengganti tim.");
-        if (window.loadMatches) window.loadMatches();
+        refreshAppViews({ standings: false, dashboard: false });
         return;
     }
     if (role === 'home' && newTeamId === match.team_b_id && newTeamId !== "") {
         customAlert("Tim Home dan Tim Away tidak boleh sama!");
-        if (window.loadMatches) window.loadMatches();
+        refreshAppViews({ standings: false, dashboard: false });
         return;
     }
     if (role === 'away' && newTeamId === match.team_a_id && newTeamId !== "") {
         customAlert("Tim Home dan Tim Away tidak boleh sama!");
-        if (window.loadMatches) window.loadMatches();
+        refreshAppViews({ standings: false, dashboard: false });
         return;
     }
 
     await fetchAPI('update_match_team_inline', { matchId, role, newTeamId });
-    if (window.loadMatches) window.loadMatches();
+    refreshAppViews({ standings: false, dashboard: false });
 }
 
 export function openEditPlayerModal(id, nick, role) {
@@ -135,6 +136,6 @@ export async function submitEditTeam(e) {
 
     await fetchAPI('edit_team', { id, team_name: validation.name, tag: validation.tag });
     closeModal('modal-edit-team');
-    if (window.loadTeams) window.loadTeams();
+    if (typeof window.loadTeams === 'function') window.loadTeams();
     if (window.showRoster) window.showRoster(id);
 }

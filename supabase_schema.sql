@@ -71,6 +71,9 @@ CREATE TABLE IF NOT EXISTS public.schedule_templates (
 );
 
 -- Enable Row Level Security (RLS)
+-- IMPORTANT: the policies below are intentionally broad for the current public
+-- simulator model. Before production, restrict writes to authenticated/admin
+-- identities or move admin mutations behind a server-side function.
 ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teams ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.matches ENABLE ROW LEVEL SECURITY;

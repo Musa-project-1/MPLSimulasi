@@ -9,6 +9,7 @@ import { showToast, showLoading, customAlert } from '../ui/core.js';
 import { isSupabaseConfigured, syncSessionToSupabase } from './supabase.js';
 import { validateBo3Score } from '../rules/validators.js';
 import { getMasterTeams } from './teams_db.js';
+import { refreshAppViews } from '../ui/refresh.js';
 
 // Official Schedule & Results Data for MPL ID Season 18 (Week 1 to Week 4)
 export const OFFICIAL_S18_WEEK_1_TO_4_TEXT = `
@@ -262,9 +263,7 @@ export async function applyBatchMatches(parsedMatches, sessionId = Store.activeS
 
         showToast(`Berhasil memperbarui ${updatedCount} pertandingan & disinkronkan ke Cloud!`, "success");
 
-        if (window.loadMatches) window.loadMatches();
-        if (window.loadStandings) window.loadStandings();
-        if (window.loadDashboard) window.loadDashboard();
+        refreshAppViews();
 
         return true;
     } catch (err) {
@@ -330,9 +329,7 @@ export async function syncLiveScoresFromCloud(sessionId = Store.activeSessionId)
 
         showToast(`Berhasil menyinkronkan ${updatedCount} skor resmi terbaru dari Cloud!`, "success");
 
-        if (window.loadMatches) window.loadMatches();
-        if (window.loadStandings) window.loadStandings();
-        if (window.loadDashboard) window.loadDashboard();
+        refreshAppViews();
 
         return true;
     } catch (err) {

@@ -434,8 +434,8 @@ Each commit must pass relevant tests. Do not squash security and unrelated refac
 
 ## Open Decisions Before Implementation
 
-1. Apakah cloud sessions memang harus writable oleh user biasa, atau seluruh simulation data tetap local-first dan cloud hanya official data?
-2. Hosting production final Vercel atau host lain? Ini menentukan security-header file.
+1. Keputusan: cloud hanya menyimpan data official/admin; session simulasi user tetap local-only.
+2. Keputusan: target hosting production adalah Vercel; gunakan `vercel.json` untuk security headers.
 3. Apakah Supabase Auth sudah tersedia untuk admin, atau perlu dibuat dari nol?
 4. Apakah Playwright boleh ditambahkan sebagai dev dependency?
 5. Apakah pembagian `index.html` tetap harus zero-build/static-only, atau build step kecil dapat diterima?

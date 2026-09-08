@@ -32,7 +32,7 @@ window.addEventListener('DOMContentLoaded', () => {
     cleanupServiceWorkers();
     AdminAuth.updateAdminUIState();
     ShareUrl.checkAndLoadSharedPrediction();
-    Sessions.syncSessionsFromCloud().catch(err => console.warn('Cloud sync error:', err));
+    // User simulation sessions remain local-first; only official data syncs from cloud.
     Admin.syncScheduleTemplatesFromCloud().catch(err => console.warn('Cloud schedule sync error:', err));
     TeamsDB.syncMasterTeamsFromCloud().catch(err => console.warn('Cloud teams sync error:', err));
 
@@ -257,11 +257,7 @@ export function saveSettings() {
     const sbKey = document.getElementById('setting-supabase-key')?.value || '';
     Supabase.saveSupabaseConfig(sbUrl, sbKey);
 
-    if (Supabase.isSupabaseConfigured() && Store.activeSessionId) {
-        Supabase.syncSessionToSupabase(Store.activeSessionId)
-            .then(() => UI.showToast("Pengaturan dan data berhasil disinkronkan ke Supabase Cloud!", "success"))
-            .catch(err => console.warn('Supabase sync on save failed:', err));
-    }
+    // Simulation settings remain local-first; Supabase stores official/admin data only.
 
     UI.closeModal('modal-settings');
     UI.showToast("Konfigurasi simulasi berhasil disimpan!", "success");

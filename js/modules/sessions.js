@@ -6,13 +6,6 @@
 import * as Store from '../store.js';
 import { openModal, closeModal, customAlert, renderSessionManager } from '../ui/core.js';
 import { initializeMockDataForSession } from './schedule.js';
-import { 
-    isSupabaseConfigured, 
-    syncSessionToSupabase, 
-    deleteSessionFromSupabase,
-    fetchSessionsFromSupabase,
-    fetchSessionDataFromSupabase
-} from './supabase.js';
 import { sanitizeSessionName, validateSessionImport } from '../rules/validators.js';
 
 export function openCreateSessionModal() {
@@ -76,53 +69,8 @@ export async function openSession(id) {
     Store.setActiveSessionId(sess.id);
     Store.setActiveSessionName(sess.name);
 
-    // If session data is not yet in local storage, fetch from Supabase
-    let localTeams = Store.getSessionTeams(sess.id);
-    if ((!localTeams || localTeams.length === 0) && isSupabaseConfigured()) {
-        const cloudData = await fetchSessionDataFromSupabase(sess.id);
-        if (cloudData && cloudData.teams && cloudData.teams.length > 0) {
-            Store.saveSessionData(cloudData.teams, cloudData.matches || [], sess.id);
-            if (cloudData.settings) {
-                try { localStorage.setItem('mpl_settings_' + sess.id, JSON.stringify(cloudData.settings)); } catch (_) {}
-            }
-            if (cloudData.playoffs && cloudData.playoffs.bracket_data) {
-                try { localStorage.setItem('mpl_playoffs_' + sess.id, JSON.stringify(cloudData.playoffs.bracket_data)); } catch (_) {}
-            }
-        }
-    }
-
+    // Session data is intentionally local-first; cloud official data is synced separately.
     enterApp();
-}
-
-export async function syncSessionsFromCloud() {
-    if (!isSupabaseConfigured()) return;
-    const { isCacheFresh, touchCache } = await import('./supabase.js');
-    if (isCacheFresh('cloud_sessions', 15)) return;
-
-    try {
-        const cloudSessions = await fetchSessionsFromSupabase();
-        if (!cloudSessions || !Array.isArray(cloudSessions)) return;
-
-        const localSessions = Store.loadSessionsList();
-        let changed = false;
-
-        cloudSessions.forEach(cs => {
-            const exists = localSessions.find(ls => ls.id === cs.id);
-            if (!exists) {
-                localSessions.push(cs);
-                changed = true;
-            }
-        });
-
-        if (changed) {
-            Store.saveSessionsList();
-            renderSessionManager();
-        }
-
-        touchCache('cloud_sessions');
-    } catch (err) {
-        console.warn('Gagal sinkronisasi sesi dari cloud:', err);
-    }
 }
 
 export function deleteSession(id) {
@@ -149,10 +97,6 @@ export function executeDeleteSession() {
         localStorage.removeItem('mpl_playoffs_' + id);
         localStorage.removeItem('mpl_force_playoff_' + id);
     } catch (_) {}
-
-    if (isSupabaseConfigured()) {
-        deleteSessionFromSupabase(id).catch(err => console.warn('Supabase delete failed:', err));
-    }
 
     closeModal('modal-confirm-delete');
 

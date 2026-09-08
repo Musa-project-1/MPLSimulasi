@@ -6,7 +6,7 @@
 
 import * as Store from '../store.js';
 import { showToast, showLoading, customAlert } from '../ui/core.js';
-import { isSupabaseConfigured, syncSessionToSupabase } from './supabase.js';
+import { isSupabaseConfigured } from './supabase.js';
 import { validateBo3Score } from '../rules/validators.js';
 import { getMasterTeams } from './teams_db.js';
 import { refreshAppViews } from '../ui/refresh.js';
@@ -243,11 +243,9 @@ export async function applyBatchMatches(parsedMatches, sessionId = Store.activeS
         Store.setGlobalTeams(recomputedTeams);
         Store.setGlobalMatches(matches);
 
-        // Broadcast to Supabase Cloud if configured
+        // User simulation data stays local-first. Only the official live snapshot is broadcast.
         if (isSupabaseConfigured() && sessionId) {
-            await syncSessionToSupabase(sessionId).catch(e => console.warn("Cloud sync failed:", e));
-
-            // Also broadcast official live matches snapshot for other users
+            // Broadcast official live matches snapshot for other users
             const { supabaseRequest } = await import('./supabase.js');
             await supabaseRequest('schedule_templates', 'POST', [{
                 id: 'official_live_matches',

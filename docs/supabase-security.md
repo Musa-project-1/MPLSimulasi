@@ -22,7 +22,32 @@ The browser must not receive or use a `service_role` key. Admin writes must go t
 1. Supabase Edge Function that verifies Supabase Auth and an admin role.
 2. Narrow `SECURITY DEFINER` RPC functions with explicit validation and authorization.
 
-The client-side PIN is a UI gate only. It is not authorization and must never be used as proof for a database mutation.
+This repository now contains `supabase/functions/admin-mutate/index.ts`. It:
+
+- requires a bearer token;
+- verifies the user through Supabase Auth;
+- requires `user.app_metadata.role === "admin"`;
+- accepts only the three official template IDs;
+- bounds request size and validates payload shape;
+- uses `SUPABASE_SERVICE_ROLE_KEY` only inside the Edge Function runtime.
+
+The client-side PIN is a UI gate only. It is not authorization and must never be used as proof for a database mutation. The browser must be migrated to Supabase Auth before the RLS migration is applied.
+
+## Edge Function deployment
+
+From a machine with the Supabase CLI authenticated to the intended project:
+
+```bash
+supabase functions deploy admin-mutate
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=...
+```
+
+Do not put the service-role value in this repository, `.env` committed files, browser localStorage, or client JavaScript. Configure the admin user's `app_metadata.role` through a trusted Supabase admin process, then test unauthorized and authorized calls in a non-production project.
+
+The current function uses explicit CORS headers. Replace the wildcard origin with the production origin before enabling browser calls in production.
+
+`supabase/config.toml` sets `verify_jwt = false` because the function performs explicit `getUser(token)` verification and role checking. Keep that behavior covered by integration tests.
+
 
 ## Deployment procedure
 

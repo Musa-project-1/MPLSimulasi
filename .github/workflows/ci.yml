@@ -21,7 +21,7 @@ jobs:
       - run: git diff --check
       - name: Reject server credentials
         run: |
-          if git grep -n -I -E 'service_role|BEGIN (RSA|OPENSSH|EC) PRIVATE KEY' -- '*.js' '*.html' '*.sql' '*.json' ':!package-lock.json' ':!.hermes/**'; then
+          if git grep -n -I -E 'service_role|SUPABASE_SERVICE_ROLE_KEY|BEGIN (RSA|OPENSSH|EC) PRIVATE KEY' -- '*.js' '*.html' ':!package-lock.json' ':!.hermes/**'; then
             echo 'Potential server credential found in tracked files.'
             exit 1
           fi

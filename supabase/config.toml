@@ -1,0 +1,2 @@
+[functions.admin-mutate]
+verify_jwt = false

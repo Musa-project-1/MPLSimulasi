@@ -21,7 +21,7 @@ export function computeWhatIfScenario(speculativeMatches = [], sessionId = Store
     // 1. Baseline Standings & Clinch
     const baselineTeams = recalculateTeamStatsFromMatches(teams, matches);
     const baselineStandings = calculateStandings(baselineTeams, matches);
-    const baselineEnriched = calculateClinchStatus(baselineStandings, 16);
+    const baselineEnriched = calculateClinchStatus(baselineStandings, 16, matches);
     const baselineRankMap = {};
     baselineEnriched.forEach((t, idx) => {
         baselineRankMap[t.id] = { rank: idx + 1, points: t.points, clinch: t.clinch };
@@ -46,7 +46,7 @@ export function computeWhatIfScenario(speculativeMatches = [], sessionId = Store
     // 3. Recompute Scenario Standings & Clinch
     const scenarioTeams = recalculateTeamStatsFromMatches(teams, clonedMatches);
     const scenarioStandings = calculateStandings(scenarioTeams, clonedMatches);
-    const scenarioEnriched = calculateClinchStatus(scenarioStandings, 16);
+    const scenarioEnriched = calculateClinchStatus(scenarioStandings, 16, clonedMatches)
 
     // 4. Compute Deltas
     const comparison = scenarioEnriched.map((t, newIdx) => {

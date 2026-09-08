@@ -167,6 +167,23 @@ export function calculateTeamStreak(teamId, matches = []) {
 }
 
 /**
+ * Canonical comparator shared by standings and clinch calculations.
+ */
+export function compareStandingsTeams(a, b, matches = []) {
+    if ((b.match_win || 0) !== (a.match_win || 0)) return (b.match_win || 0) - (a.match_win || 0);
+    if ((b.points || 0) !== (a.points || 0)) return (b.points || 0) - (a.points || 0);
+
+    if (matches?.length) {
+        const h2h = getHeadToHeadRecord(a.id, b.id, matches);
+        if (h2h.diffMatches !== 0) return h2h.diffMatches > 0 ? -1 : 1;
+        if (h2h.diffGames !== 0) return h2h.diffGames > 0 ? -1 : 1;
+    }
+
+    if ((b.game_win || 0) !== (a.game_win || 0)) return (b.game_win || 0) - (a.game_win || 0);
+    return String(a.tag || a.id || '').localeCompare(String(b.tag || b.id || ''));
+}
+
+/**
  * Sort teams according to official MPL standings and tie-breaker criteria.
  */
 export function calculateStandings(teams = [], matches = []) {
@@ -181,36 +198,7 @@ export function calculateStandings(teams = [], matches = []) {
         streak: calculateTeamStreak(t.id, matches)
     }));
 
-    const sorted = list.sort((a, b) => {
-        // 1. Match Win difference (or Match Wins)
-        if (b.match_win !== a.match_win) {
-            return b.match_win - a.match_win;
-        }
-
-        // 2. Net Game Difference (Game Points)
-        if (b.points !== a.points) {
-            return b.points - a.points;
-        }
-
-        // 3. Head to Head analysis
-        if (matches && matches.length > 0) {
-            const h2h = getHeadToHeadRecord(a.id, b.id, matches);
-            if (h2h.diffMatches !== 0) {
-                return h2h.diffMatches > 0 ? -1 : 1;
-            }
-            if (h2h.diffGames !== 0) {
-                return h2h.diffGames > 0 ? -1 : 1;
-            }
-        }
-
-        // 4. Total Game Wins
-        if (b.game_win !== a.game_win) {
-            return b.game_win - a.game_win;
-        }
-
-        // 5. Fallback deterministic tag
-        return (a.tag || '').localeCompare(b.tag || '');
-    });
+    const sorted = list.sort((a, b) => compareStandingsTeams(a, b, matches));
 
     // Annotate tie-breaker reason if tied on match wins & points
     for (let i = 0; i < sorted.length; i++) {

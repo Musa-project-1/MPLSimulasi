@@ -3,7 +3,7 @@
  */
 
 import * as Store from '../store.js';
-import { openModal, closeModal, customAlert, getTeamLogo } from '../ui/core.js';
+import { openModal, closeModal, customAlert, getTeamLogo, escapeHTML } from '../ui/core.js';
 import { fetchAPI } from './schedule.js';
 import { validateTeamData, validatePlayerData } from '../rules/validators.js';
 
@@ -23,8 +23,8 @@ export function openTeamPicker(matchId, role) {
         grid.innerHTML += `
             <div onclick="selectTeamFromPicker('${t.id}')" class="flex flex-col items-center p-3 bg-white border border-slate-100 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/20 cursor-pointer transition-all shadow-sm group">
                 ${getTeamLogo(t.tag, 'w-12 h-12 mb-2 group-hover:scale-110 transition-transform')}
-                <span class="font-bold text-xs text-slate-800 text-center">${t.tag}</span>
-                <span class="text-[9px] text-slate-400 truncate w-full text-center">${t.team_name}</span>
+                <span class="font-bold text-xs text-slate-800 text-center">${escapeHTML(t.tag)}</span>
+                <span class="text-[9px] text-slate-400 truncate w-full text-center">${escapeHTML(t.team_name)}</span>
             </div>
         `;
     });

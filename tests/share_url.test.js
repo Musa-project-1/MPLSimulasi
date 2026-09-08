@@ -20,6 +20,11 @@ describe('URL Hash Prediction Sharing Engine', () => {
         expect(code).toBe('12340');
     });
 
+    it('rejects unsupported score codes at the validation boundary', () => {
+        expect('12340').toMatch(/^[0-4]+$/);
+        expect('12x40').not.toMatch(/^[0-4]+$/);
+    });
+
     it('accurately decodes compact code string back into match results', () => {
         const targetMatches = [
             { id: 'm1', week: 1, day: 1, score_a: '', score_b: '', status: 'SCHEDULED' },

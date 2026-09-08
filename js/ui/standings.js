@@ -9,13 +9,19 @@ import { calculateStandingsUpToWeek } from '../rules/standings.js';
 
 let activeStandingsWeek = 0;
 
+function escapeHtml(value = '') {
+    return String(value).replace(/[&<>'"]/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[char]));
+}
+
 export function loadStandings(teams = [], simTeams = [], targetWeek = activeStandingsWeek) {
     const totalTeams = teams.length;
     const maxMatches = globalMatches.length > 0 ? (globalMatches.length / (totalTeams / 2)) : 16;
     const historicalTeams = targetWeek > 0
         ? calculateStandingsUpToWeek(teams, globalMatches, targetWeek)
         : teams;
-    const enrichedTeams = calculateClinchStatus(historicalTeams, maxMatches); 
+    const enrichedTeams = calculateClinchStatus(historicalTeams, maxMatches, globalMatches);
 
     renderStandingsTimeline(globalMatches, targetWeek); 
 
@@ -47,7 +53,7 @@ export function loadStandings(teams = [], simTeams = [], targetWeek = activeStan
             tr.className = `hover:brightness-95 transition-all ${zoneClass} ${index === 1 || index === 5 ? 'border-b-2 border-[var(--border-color)]' : ''}`;
 
             const tieBadge = t.tieBreakerNote 
-                ? `<span class="ml-2 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[9px] font-mono font-bold border border-amber-500/20 tracking-tighter" title="Kriteria Tie-Breaker: ${t.tieBreakerNote}">TB</span>`
+                ? `<span class="ml-2 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[9px] font-mono font-bold border border-amber-500/20 tracking-tighter" title="Kriteria Tie-Breaker: ${escapeHtml(t.tieBreakerNote)}">TB</span>`
                 : '';
 
             const clinchBadge = t.clinch 
@@ -67,7 +73,7 @@ export function loadStandings(teams = [], simTeams = [], targetWeek = activeStan
                 <td class="px-3 py-2 font-medium">${index + 1}</td>
                 <td class="px-4 py-2 text-left font-semibold flex items-center">
                     ${getTeamLogo(t.tag, 'w-6 h-6 mr-2')}
-                    <span>${t.team_name}</span>
+                    <span>${escapeHtml(t.team_name)}</span>
                     ${zoneBadge}
                     ${clinchBadge}
                     ${tieBadge}
@@ -110,7 +116,7 @@ export function loadStandings(teams = [], simTeams = [], targetWeek = activeStan
                 <td class="px-3 py-3 font-medium">${index + 1}</td>
                 <td class="px-4 py-3 text-left font-semibold flex items-center">
                     ${getTeamLogo(t.tag, 'w-6 h-6 mr-2')}
-                    ${t.team_name}
+                    ${escapeHtml(t.team_name)}
                 </td>
                 <td class="px-4 py-3 font-bold text-[var(--text-primary)]">${t.prob_playoff}</td>
                 <td class="px-4 py-3 text-emerald-600 font-medium">${t.prob_upper}</td>
@@ -164,7 +170,7 @@ export function renderH2HMatrix() {
                     </tr>
                     <tr class="mpl-subhead">
                         <th class="px-3 py-3 w-16 text-left">Tim</th>
-                        ${teams.map(t => `<th class="px-2 py-3 font-bold text-center">${getTeamLogo(t.tag, 'w-5 h-5 mx-auto mb-1')}<span>${t.tag}</span></th>`).join('')}
+                        ${teams.map(t => `<th class="px-2 py-3 font-bold text-center">${getTeamLogo(t.tag, 'w-5 h-5 mx-auto mb-1')}<span>${escapeHtml(t.tag)}</span></th>`).join('')}
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[var(--border-color)]">

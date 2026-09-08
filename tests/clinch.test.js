@@ -50,6 +50,21 @@ describe('Magic Number & Clinch Engine', () => {
         expect(navi.clinch.badgeLabel).toBe('Tereliminasi');
     });
 
+    it('uses H2H as the canonical cutoff tie-breaker', () => {
+        const standings = [
+            { id: 'a', tag: 'ALPHA', match_played: 14, match_win: 8, match_lose: 6, game_win: 16, game_lose: 12, points: 4 },
+            { id: 'b', tag: 'BETA', match_played: 14, match_win: 8, match_lose: 6, game_win: 16, game_lose: 12, points: 4 },
+            { id: 'c', tag: 'CHARLIE', match_played: 14, match_win: 7, match_lose: 7, game_win: 14, game_lose: 14, points: 0 },
+            { id: 'd', tag: 'DELTA', match_played: 14, match_win: 6, match_lose: 8, game_win: 12, game_lose: 16, points: -4 },
+            { id: 'e', tag: 'ECHO', match_played: 14, match_win: 5, match_lose: 9, game_win: 10, game_lose: 18, points: -8 },
+            { id: 'f', tag: 'FOXTROT', match_played: 14, match_win: 4, match_lose: 10, game_win: 8, game_lose: 20, points: -12 },
+            { id: 'g', tag: 'GOLF', match_played: 14, match_win: 3, match_lose: 11, game_win: 6, game_lose: 22, points: -16 }
+        ];
+        const matches = [{ team_a_id: 'a', team_b_id: 'b', score_a: 2, score_b: 0, status: 'COMPLETED' }];
+        const result = calculateClinchStatus(standings, 16, matches);
+        expect(result.find(team => team.id === 'a').clinch.status).toBe(CLINCH_STATUS.PLAYOFF_CLINCHED);
+    });
+
     it('computes accurate Magic Number for teams still in contention', () => {
         const standings = [
             { id: 't1', tag: 'ONIC', match_played: 10, match_win: 8, points: 8 },

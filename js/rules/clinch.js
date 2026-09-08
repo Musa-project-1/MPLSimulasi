@@ -3,6 +3,8 @@
  * Computes mathematical qualification, Upper Bracket locks, and elimination thresholds.
  */
 
+import { compareStandingsTeams } from './standings.js';
+
 export const CLINCH_STATUS = {
     UPPER_CLINCHED: 'UPPER_CLINCHED', // Locked Top 2 (Upper Semifinals Bye)
     PLAYOFF_CLINCHED: 'PLAYOFF_CLINCHED', // Locked Top 6 (Playoff Qualified)
@@ -14,14 +16,22 @@ export const CLINCH_STATUS = {
  * Computes clinch and magic number status for each team based on current standings.
  * In official MPL ID: 9 teams, 16 matches per team, Top 2 Upper, Top 6 Playoff, Bottom 3 Out.
  */
-export function calculateClinchStatus(standings = [], totalSeasonMatchesPerTeam = 16) {
+export function calculateClinchStatus(standings = [], totalSeasonMatchesPerTeam = 16, matches = []) {
     if (!standings || standings.length === 0) return [];
 
     const totalTeams = standings.length;
-    const maxMatches = totalSeasonMatchesPerTeam;
+    const maxMatches = Number.isFinite(Number(totalSeasonMatchesPerTeam))
+        ? Math.max(0, Number(totalSeasonMatchesPerTeam))
+        : 16;
+
+    // Enforce a deterministic standings order at this boundary. Clinch cutoffs
+    // must never depend on an arbitrary caller array order.
+    const orderedStandings = [...standings].sort((a, b) => {
+        return compareStandingsTeams(a, b, matches);
+    });
 
     // Calculate max potential wins for every team
-    const teamsWithPotential = standings.map(t => {
+    const teamsWithPotential = orderedStandings.map(t => {
         const played = parseInt(t.match_played, 10) || 0;
         const wins = parseInt(t.match_win, 10) || 0;
         const remaining = Math.max(0, maxMatches - played);

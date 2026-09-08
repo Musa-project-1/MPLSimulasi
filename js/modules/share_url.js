@@ -103,14 +103,21 @@ export function checkAndLoadSharedPrediction() {
     const code = params.get('prediksi');
     const name = params.get('nama') || 'Prediksi Teman';
 
-    if (!code) return false;
+    if (!code || !/^[0-4]+$/.test(code)) {
+        showToast('Tautan prediksi tidak valid.', 'warning');
+        return false;
+    }
 
-    const newSessionId = 'shared_' + Date.now();
-    const sessionTitle = decodeURIComponent(name).slice(0, 30);
-
+    const sessionTitle = String(name).slice(0, 30);
     const sessions = Store.loadSessionsList();
-    sessions.unshift({ id: newSessionId, name: `[Link] ${sessionTitle}`, timestamp: Date.now() });
-    Store.saveSessionsList();
+    const shareKey = `${code}:${sessionTitle}`;
+    const existing = sessions.find(session => session.shareKey === shareKey);
+    const newSessionId = existing?.id || `shared_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+    if (!existing) {
+        sessions.unshift({ id: newSessionId, name: `[Link] ${sessionTitle}`, shareKey, timestamp: Date.now() });
+        Store.saveSessionsList();
+    }
 
     Store.setActiveSessionId(newSessionId);
     Store.setActiveSessionName(`[Link] ${sessionTitle}`);
@@ -118,6 +125,17 @@ export function checkAndLoadSharedPrediction() {
     initializeMockDataForSession(newSessionId, 'standard');
     const matches = Store.getSessionMatches(newSessionId);
     const teams = Store.getSessionTeams(newSessionId);
+
+    if (code.length > matches.length) {
+        Store.safeStorage.removeItem('mpl_teams_' + newSessionId);
+        Store.safeStorage.removeItem('mpl_matches_' + newSessionId);
+        Store.setActiveSessionId(null);
+        Store.setActiveSessionName('');
+        Store.setSessionsList(sessions.filter(session => session.id !== newSessionId));
+        Store.saveSessionsList();
+        showToast('Tautan prediksi tidak cocok dengan format jadwal.', 'warning');
+        return false;
+    }
 
     decodeCodeToMatches(code, matches);
     Store.saveSessionData(teams, matches, newSessionId);

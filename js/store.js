@@ -52,9 +52,20 @@ export function setSessionsList(list) { sessionsList = list; }
 export function setGlobalTeams(teams) { globalTeams = teams; }
 export function setGlobalMatches(matches) { globalMatches = matches; }
 
+function parseStoredArray(key) {
+    const raw = safeStorage.getItem(key);
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (_) {
+        safeStorage.removeItem(key);
+        return [];
+    }
+}
+
 export function loadSessionsList() {
-    const raw = safeStorage.getItem('mpl_sim_sessions');
-    sessionsList = raw ? JSON.parse(raw) : [];
+    sessionsList = parseStoredArray('mpl_sim_sessions');
     return sessionsList;
 }
 
@@ -63,11 +74,11 @@ export function saveSessionsList() {
 }
 
 export function getSessionTeams(sessionId = activeSessionId) {
-    return JSON.parse(safeStorage.getItem('mpl_teams_' + sessionId) || '[]');
+    return parseStoredArray('mpl_teams_' + sessionId);
 }
 
 export function getSessionMatches(sessionId = activeSessionId) {
-    return JSON.parse(safeStorage.getItem('mpl_matches_' + sessionId) || '[]');
+    return parseStoredArray('mpl_matches_' + sessionId);
 }
 
 export function saveSessionData(teams, matches, sessionId = activeSessionId) {

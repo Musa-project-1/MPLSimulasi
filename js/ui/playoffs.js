@@ -2,7 +2,7 @@
  * Playoff Tournament Bracket UI Renderer
  */
 
-import { getTeamLogo } from './core.js';
+import { getTeamLogo, escapeHTML } from './core.js';
 
 export function renderPlayoffBracket(data) {
     const container = document.getElementById('playoff-bracket-container');
@@ -12,7 +12,7 @@ export function renderPlayoffBracket(data) {
 
     data.rounds.forEach((round, rIndex) => {
         html += `<div class="bracket-round">
-            <div class="round-title mb-8">${round.name}</div>
+            <div class="round-title mb-8">${escapeHTML(round.name)}</div>
             <div class="flex flex-col h-full justify-around gap-12">`;
 
         round.matches.forEach(match => {
@@ -48,8 +48,8 @@ export function renderPlayoffBracket(data) {
                                     ${isWinnerA ? '<div class="absolute -top-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 shadow-sm border border-white"><i class="ph-fill ph-crown text-[8px]"></i></div>' : ''}
                                 </div>
                                 <div>
-                                    <span class="team-name text-sm font-bold block leading-none ${isWinnerA ? 'text-emerald-600' : 'text-[var(--text-primary)]'}">${teamA.tag}</span>
-                                    <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">${teamA.team_name}</span>
+                                    <span class="team-name text-sm font-bold block leading-none ${isWinnerA ? 'text-emerald-600' : 'text-[var(--text-primary)]'}">${escapeHTML(teamA.tag)}</span>
+                                    <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">${escapeHTML(teamA.team_name)}</span>
                                 </div>
                             </div>
                             <input type="number" value="${match.scoreA}" onchange="updatePlayoffScore('${match.id}', 'A', this.value)" 
@@ -65,8 +65,8 @@ export function renderPlayoffBracket(data) {
                                     ${isWinnerB ? '<div class="absolute -top-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 shadow-sm border border-white"><i class="ph-fill ph-crown text-[8px]"></i></div>' : ''}
                                 </div>
                                 <div>
-                                    <span class="team-name text-sm font-bold block leading-none ${isWinnerB ? 'text-emerald-600' : 'text-[var(--text-primary)]'}">${teamB.tag}</span>
-                                    <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">${teamB.team_name}</span>
+                                    <span class="team-name text-sm font-bold block leading-none ${isWinnerB ? 'text-emerald-600' : 'text-[var(--text-primary)]'}">${escapeHTML(teamB.tag)}</span>
+                                    <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">${escapeHTML(teamB.team_name)}</span>
                                 </div>
                             </div>
                             <input type="number" value="${match.scoreB}" onchange="updatePlayoffScore('${match.id}', 'B', this.value)" 

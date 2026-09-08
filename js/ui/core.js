@@ -54,14 +54,17 @@ export function getAppLogoSvg(sizeClass = 'w-9 h-9') {
 }
 
 export function getTeamLogo(tag, customClasses = '') {
+    const safeTag = escapeHTML(tag || '');
+    const safeClasses = escapeHTML(customClasses);
     if (!tag || tag === 'TBD') {
-        return `<span class="bg-slate-100 text-slate-400 inline-flex items-center justify-center font-bold text-[10px] ${customClasses} border border-slate-200 flex-shrink-0 rounded-lg">?</span>`;
+        return `<span class="bg-slate-100 text-slate-400 inline-flex items-center justify-center font-bold text-[10px] ${safeClasses} border border-slate-200 flex-shrink-0 rounded-lg">?</span>`;
     }
     const logoUrl = TEAM_LOGOS[tag];
     if (logoUrl) {
-        return `<img src="${logoUrl}" alt="${tag}" onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('span'),{className:'bg-slate-200 text-slate-600 inline-flex items-center justify-center font-bold text-[10px] ${customClasses} border border-slate-300 flex-shrink-0 rounded-lg',innerText:'${tag.substring(0, 3)}'}))" class="object-contain ${customClasses}">`;
+        const safeUrl = escapeHTML(logoUrl);
+        return `<img src="${safeUrl}" alt="${safeTag}" class="object-contain ${safeClasses}">`;
     }
-    return `<span class="bg-slate-200 text-slate-600 inline-flex items-center justify-center font-bold text-[10px] ${customClasses} border border-slate-300 flex-shrink-0 rounded-lg">${tag.substring(0, 3)}</span>`;
+    return `<span class="bg-slate-200 text-slate-600 inline-flex items-center justify-center font-bold text-[10px] ${safeClasses} border border-slate-300 flex-shrink-0 rounded-lg">${escapeHTML(String(tag).substring(0, 3))}</span>`;
 }
 
 /**
@@ -308,7 +311,7 @@ export function renderSessionManager() {
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h3 class="font-bold text-white text-lg tracking-wide">${session.name}</h3>
+                            <h3 class="font-bold text-white text-lg tracking-wide">${escapeHTML(session.name)}</h3>
                             <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[8px] font-bold border border-emerald-500/20 inline-flex items-center gap-1"><i class="ph-fill ph-cloud"></i> Cloud</span>
                         </div>
                         <p class="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5"><i class="ph ph-clock mr-1"></i>Last active: ${dateStr}</p>

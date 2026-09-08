@@ -2,6 +2,8 @@
  * Schedule Database Admin UI Renderer
  */
 
+import { escapeHTML } from './core.js';
+
 export let activeAdminTemplate = 'standard';
 if (typeof window !== 'undefined') {
     window.activeAdminTemplate = activeAdminTemplate;
@@ -27,7 +29,7 @@ export function renderDatabaseAdmin(templateKey, templateData = {}, allTeams = [
                     : 'text-[var(--text-secondary)] hover:bg-[var(--bg-input)] hover:text-[var(--text-primary)]'
             }`;
             btn.onclick = () => window.switchAdminTemplate(k);
-            btn.innerHTML = `<i class="ph ph-calendar text-base flex-shrink-0"></i><span class="truncate">${t.name || k}</span>`;
+            btn.innerHTML = `<i class="ph ph-calendar text-base flex-shrink-0"></i><span class="truncate">${escapeHTML(t.name || k)}</span>`;
             navList.appendChild(btn);
         });
     }
@@ -63,8 +65,10 @@ export function createMatchupRow(m, index, allTeams) {
     let teamBOpts = `<option value="">-- TBD --</option>`;
 
     allTeams.forEach(t => {
-        teamAOpts += `<option value="${t.tag}" ${m.teamA === t.tag ? 'selected' : ''}>${t.tag} (${t.team_name})</option>`;
-        teamBOpts += `<option value="${t.tag}" ${m.teamB === t.tag ? 'selected' : ''}>${t.tag} (${t.team_name})</option>`;
+        const tag = escapeHTML(t.tag);
+        const teamName = escapeHTML(t.team_name);
+        teamAOpts += `<option value="${tag}" ${m.teamA === t.tag ? 'selected' : ''}>${tag} (${teamName})</option>`;
+        teamBOpts += `<option value="${tag}" ${m.teamB === t.tag ? 'selected' : ''}>${tag} (${teamName})</option>`;
     });
 
     row.innerHTML = `

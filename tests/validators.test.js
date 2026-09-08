@@ -156,6 +156,17 @@ describe('Validation & Sanitization Engine', () => {
             expect(validateSessionImport(data).valid).toBe(false);
         });
 
+        it('rejects roster players with invalid role or missing nickname', () => {
+            const base = {
+                type: 'MPL_SIM_SESSION',
+                session: { id: 's1', name: 'Valid' },
+                teams: [{ id: 't1', team_name: 'A', tag: 'AA' }, { id: 't2', team_name: 'B', tag: 'BB' }],
+                matches: [{ id: 'm1', team_a_id: 't1', team_b_id: 't2', score_a: '', score_b: '' }]
+            };
+            expect(validateSessionImport({ ...base, teams: [{ ...base.teams[0], roster: [{ id: 'p1', nick: 'One', role: 'Coach' }] }, base.teams[1]] }).valid).toBe(false);
+            expect(validateSessionImport({ ...base, teams: [{ ...base.teams[0], roster: [{ id: 'p1', nick: '<script>', role: 'Jungler' }] }, base.teams[1]] }).valid).toBe(false);
+        });
+
         it('sanitizes and passes valid session structures', () => {
             const validData = {
                 type: "MPL_SIM_SESSION",

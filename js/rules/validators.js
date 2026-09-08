@@ -221,13 +221,28 @@ export function validateSessionImport(data) {
 
     for (const team of sanitizedTeams) {
         const playerIds = new Set();
+        const sanitizedRoster = [];
         for (const player of team.roster) {
-            const playerId = String(player?.id || '');
-            if (!playerId || playerIds.has(playerId)) {
-                return { valid: false, error: `Roster tim ${team.id} memiliki ID pemain duplikat atau kosong.` };
+            const playerId = String(player?.id || '').trim();
+            const playerValidation = validatePlayerData(player?.nick, player?.role);
+            if (!playerId || playerIds.has(playerId) || !playerValidation.valid) {
+                return { valid: false, error: `Roster tim ${team.id} memiliki data pemain yang tidak valid.` };
             }
             playerIds.add(playerId);
+            sanitizedRoster.push({
+                id: playerId,
+                nick: playerValidation.nick,
+                role: playerValidation.role,
+                fatigue: Math.min(100, Math.max(0, parseStrictInteger(player?.fatigue) ?? 0)),
+                stats: {
+                    kills: Math.max(0, parseStrictInteger(player?.stats?.kills) ?? 0),
+                    deaths: Math.max(0, parseStrictInteger(player?.stats?.deaths) ?? 0),
+                    assists: Math.max(0, parseStrictInteger(player?.stats?.assists) ?? 0),
+                    mvp: Math.max(0, parseStrictInteger(player?.stats?.mvp) ?? 0)
+                }
+            });
         }
+        team.roster = sanitizedRoster;
     }
 
     const teamIds = new Set();

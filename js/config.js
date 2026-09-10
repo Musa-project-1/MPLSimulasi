@@ -1,13 +1,13 @@
 export const TEAM_LOGOS = {
-    "ONIC": "img/Logo MPl/Onic.png",
-    "BTR": "img/Logo MPl/btr_vit.png",
-    "EVOS": "img/Logo MPl/Evos.png",
-    "TLID": "img/Logo MPl/Tlid.png",
-    "AE": "img/Logo MPl/AE.png",
-    "DEWA": "img/Logo MPl/Dewa.png",
-    "GEEK": "img/Logo MPl/Geek.png",
-    "RRQ": "img/Logo MPl/RRQ.png",
-    "NAVI": "img/Logo MPl/Navi.png"
+    "ONIC": "img/Logo MPl/Onic.webp",
+    "BTR": "img/Logo MPl/btr_vit.webp",
+    "EVOS": "img/Logo MPl/Evos.webp",
+    "TLID": "img/Logo MPl/Tlid.webp",
+    "AE": "img/Logo MPl/AE.webp",
+    "DEWA": "img/Logo MPl/Dewa.webp",
+    "GEEK": "img/Logo MPl/Geek.webp",
+    "RRQ": "img/Logo MPl/RRQ.webp",
+    "NAVI": "img/Logo MPl/Navi.webp"
 };
 
 export const DEFAULT_SETTINGS = {

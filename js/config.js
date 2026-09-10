@@ -1,6 +1,19 @@
 import { getMasterTeams } from './modules/teams_db.js';
 
 export const TEAM_LOGOS = {
+    "ONIC": "img/Logo MPl/Onic.webp",
+    "BTR": "img/Logo MPl/btr_vit.webp",
+    "EVOS": "img/Logo MPl/Evos.webp",
+    "TLID": "img/Logo MPl/Tlid.webp",
+    "AE": "img/Logo MPl/AE.webp",
+    "DEWA": "img/Logo MPl/Dewa.webp",
+    "GEEK": "img/Logo MPl/Geek.webp",
+    "RRQ": "img/Logo MPl/RRQ.webp",
+    "NAVI": "img/Logo MPl/Navi.webp"
+};
+
+// Fallback PNG bila browser tidak dukung WebP (PNG tetap ada di repo)
+export const TEAM_LOGOS_FALLBACK = {
     "ONIC": "img/Logo MPl/Onic.png",
     "BTR": "img/Logo MPl/btr_vit.png",
     "EVOS": "img/Logo MPl/Evos.png",

@@ -171,6 +171,7 @@ export async function loadStandings(targetWeek = 0) {
     Store.setGlobalTeams(teams);
 
     const simTeams = await runSimulation(teams);
+    if (!simTeams) return;
     UI.loadStandings(teams, simTeams, targetWeek);
 }
 

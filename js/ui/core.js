@@ -2,7 +2,7 @@
  * Core UI Components, Modals, Alerts, Navigation, and Brand Monogram
  */
 
-import { TEAM_LOGOS } from '../config.js';
+import { TEAM_LOGOS, TEAM_LOGOS_FALLBACK } from '../config.js';
 import { sessionsList } from '../store.js';
 import { refreshAppViews } from './refresh.js';
 
@@ -63,7 +63,8 @@ export function getTeamLogo(tag, customClasses = '') {
     const logoUrl = TEAM_LOGOS[tag];
     if (logoUrl) {
         const safeUrl = escapeHTML(logoUrl);
-        return `<img src="${safeUrl}" alt="${safeTag}" class="object-contain ${safeClasses}">`;
+        const fallbackUrl = escapeHTML((TEAM_LOGOS_FALLBACK || {})[tag] || logoUrl);
+        return `<picture><source srcset="${safeUrl}" type="image/webp"><img src="${fallbackUrl}" alt="Logo ${safeTag}" width="64" height="64" loading="lazy" decoding="async" class="object-contain ${safeClasses}"></picture>`;
     }
     return `<span class="bg-slate-200 text-slate-600 inline-flex items-center justify-center font-bold text-[10px] ${safeClasses} border border-slate-300 flex-shrink-0 rounded-lg">${escapeHTML(String(tag).substring(0, 3))}</span>`;
 }

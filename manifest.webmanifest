@@ -1,0 +1,24 @@
+{
+  "name": "MPLSim - Tournament & Bracket Simulator",
+  "short_name": "MPLSim",
+  "description": "Simulator Klasemen, Jadwal, Probabilitas Bracket Playoff, dan Monte Carlo Match MPL",
+  "lang": "id",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "icons": [
+    {
+      "src": "img/Logo MPl/Onic.webp",
+      "sizes": "64x64",
+      "type": "image/webp"
+    },
+    {
+      "src": "img/Logo MPl/Navi.webp",
+      "sizes": "128x128",
+      "type": "image/webp"
+    }
+  ]
+}

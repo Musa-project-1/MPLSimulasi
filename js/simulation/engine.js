@@ -189,9 +189,37 @@ export function simulateMonteCarlo(teams = [], allMatches = [], settings = {}, i
 
 /**
  * Executes simulation in browser using Web Worker (or fallback).
+ * Debounce 300ms + timeout 8 detik + fallback bila Worker gagal.
  */
+let simDebounceTimer = null;
+let simPendingResolve = null;
+const SIM_DEBOUNCE_MS = 300;
+const SIM_WORKER_TIMEOUT_MS = 8000;
+
 export async function runSimulation(teams) {
     return new Promise((resolve) => {
+        if (simPendingResolve) {
+            simPendingResolve(null);
+            simPendingResolve = null;
+        }
+        clearTimeout(simDebounceTimer);
+        simPendingResolve = resolve;
+        simDebounceTimer = setTimeout(() => {
+            const done = simPendingResolve;
+            simPendingResolve = null;
+            spawnSimulation(teams, (result) => {
+                if (result) done(result);
+            });
+        }, SIM_DEBOUNCE_MS);
+    });
+}
+
+function spawnSimulation(teams, done) {
+    return new Promise((resolve) => {
+        const finish = (result) => {
+            resolve(result);
+            done(result);
+        };
         let settings = { volatility: 50, h2hBias: false, momentum: true, fatigue: true, rivalry: true };
         try {
             if (typeof localStorage !== 'undefined' && activeSessionId) {
@@ -203,15 +231,35 @@ export async function runSimulation(teams) {
         const allMatches = getSessionMatches();
 
         if (typeof Worker !== 'undefined') {
-            const worker = new Worker('js/simulation/worker.js');
+            let worker = null;
+            let timedOut = false;
+            try {
+                worker = new Worker('js/simulation/worker.js');
+            } catch (_) {
+                finish(simulateMonteCarlo(teams, allMatches, settings, 2000));
+                return;
+            }
+            const timer = setTimeout(() => {
+                timedOut = true;
+                try { worker.terminate(); } catch (_) {}
+                finish(simulateMonteCarlo(teams, allMatches, settings, 2000));
+            }, SIM_WORKER_TIMEOUT_MS);
             worker.onmessage = function (e) {
-                resolve(e.data);
-                worker.terminate();
+                if (timedOut) return;
+                clearTimeout(timer);
+                finish(e.data);
+                try { worker.terminate(); } catch (_) {}
+            };
+            worker.onerror = function () {
+                if (timedOut) return;
+                clearTimeout(timer);
+                try { worker.terminate(); } catch (_) {}
+                finish(simulateMonteCarlo(teams, allMatches, settings, 2000));
             };
             worker.postMessage({ teams, allMatches, settings });
         } else {
             const results = simulateMonteCarlo(teams, allMatches, settings, 2000);
-            resolve(results);
+            finish(results);
         }
     });
 }
